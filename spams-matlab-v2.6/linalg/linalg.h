@@ -52,7 +52,7 @@ typedef ListIterator<int> const_iterator_int;
 #undef min
 
 /// Dense Matrix class
-template<typename T> class Matrix;
+template<typename T> class MyMatrix;
 /// Sparse Matrix class
 template<typename T> class SpMatrix;
 /// Dense Vector class
@@ -124,7 +124,7 @@ static inline T logexp(const T x) {
 template <typename T> class Data {
    public:
       virtual void getData(Vector<T>& data, const INTM i) const = 0;
-      virtual void getGroup(Matrix<T>& data, const vector_groups& groups,
+      virtual void getGroup(MyMatrix<T>& data, const vector_groups& groups,
             const INTM i) const = 0;
       virtual inline T operator[](const INTM index) const = 0;
       virtual INTM n() const = 0;
@@ -152,33 +152,33 @@ template <typename T> class AbstractMatrixB {
             const T alpha = 1.0, const T beta = 0.0) const = 0;
 
       /// perform C = a*A*B + b*C, possibly transposing A or B.
-      virtual void mult(const Matrix<T>& B, Matrix<T>& C, 
+      virtual void mult(const MyMatrix<T>& B, MyMatrix<T>& C, 
             const bool transA = false, const bool transB = false,
             const T a = 1.0, const T b = 0.0) const = 0;
 
-      virtual void mult(const SpMatrix<T>& B, Matrix<T>& C, 
+      virtual void mult(const SpMatrix<T>& B, MyMatrix<T>& C, 
             const bool transA = false, const bool transB = false,
             const T a = 1.0, const T b = 0.0) const = 0;
 
       /// perform C = a*B*A + b*C, possibly transposing A or B.
-      virtual void multSwitch(const Matrix<T>& B, Matrix<T>& C, 
+      virtual void multSwitch(const MyMatrix<T>& B, MyMatrix<T>& C, 
             const bool transA = false, const bool transB = false,
             const T a = 1.0, const T b = 0.0) const = 0;
 
       /// XtX = A'*A
-      virtual void XtX(Matrix<T>& XtX) const = 0;
+      virtual void XtX(MyMatrix<T>& XtX) const = 0;
 
       virtual void copyRow(const INTM i, Vector<T>& x) const = 0;
 
-      virtual void copyTo(Matrix<T>& copy) const = 0;
-      virtual T dot(const Matrix<T>& x) const = 0;
+      virtual void copyTo(MyMatrix<T>& copy) const = 0;
+      virtual T dot(const MyMatrix<T>& x) const = 0;
 
       virtual void print(const string& name) const = 0;
 
       void ridgeCG(const Vector<T>& b, Vector<T>& x, const T lambda, const T tol, const int itermax) const;
       void ridgeCG(const Vector<T>& b, const Vector<T>& delta, Vector<T>& x, const T lambda, const T tol, const int itermax) const;
-      void ridgeCG(const Matrix<T>& b, Matrix<T>& x, const T lambda, const T tol, const int itermax, const int numThreads = -1) const; 
-      void ridgeCG(const Matrix<T>& b, const Matrix<T>& delta, Matrix<T>& x, const T lambda, const T tol, const int itermax, const int numThreads = -1) const; 
+      void ridgeCG(const MyMatrix<T>& b, MyMatrix<T>& x, const T lambda, const T tol, const int itermax, const int numThreads = -1) const; 
+      void ridgeCG(const MyMatrix<T>& b, const MyMatrix<T>& delta, MyMatrix<T>& x, const T lambda, const T tol, const int itermax, const int numThreads = -1) const; 
 
       virtual ~AbstractMatrixB() { };
 };
@@ -202,19 +202,19 @@ template <typename T> class AbstractMatrix {
 };
 
 /// Class Matrix
-template<typename T> class Matrix : public Data<T>, public AbstractMatrix<T>, public AbstractMatrixB<T> {
+template<typename T> class MyMatrix : public Data<T>, public AbstractMatrix<T>, public AbstractMatrixB<T> {
    friend class SpMatrix<T>;
    public:
 
    /// Constructor with existing data X of an m x n matrix
-   Matrix(T* X, INTM m, INTM n);
+   MyMatrix(T* X, INTM m, INTM n);
    /// Constructor for a new m x n matrix
-   Matrix(INTM m, INTM n);
+   MyMatrix(INTM m, INTM n);
    /// Empty constructor
-   Matrix();
+   MyMatrix();
 
    /// Destructor
-   virtual ~Matrix();
+   virtual ~MyMatrix();
 
    /// Accessors
    /// Number of rows
@@ -240,25 +240,25 @@ template<typename T> class Matrix : public Data<T>, public AbstractMatrix<T>, pu
    /// Copy the column i into x
    inline void getData(Vector<T>& data, const INTM i) const;
    /// extract the group i
-   virtual void getGroup(Matrix<T>& data, const vector_groups& groups,
+   virtual void getGroup(MyMatrix<T>& data, const vector_groups& groups,
          const INTM i) const;
    /// Reference the column i into the vector x
    inline void refCol(INTM i, Vector<T>& x) const;
    /// Reference the column i to i+n into the Matrix mat
-   inline void refSubMat(INTM i, INTM n, Matrix<T>& mat) const;
+   inline void refSubMat(INTM i, INTM n, MyMatrix<T>& mat) const;
    /// extract a sub-matrix of a symmetric matrix
    inline void subMatrixSym(const Vector<INTM>& indices, 
-         Matrix<T>& subMatrix) const;
+         MyMatrix<T>& subMatrix) const;
    /// reference a modifiable reference to the data, DANGEROUS
    inline T* rawX() const { return _X; };
    /// return a non-modifiable reference to the data
    inline const T* X() const { return _X; };
    /// make a copy of the matrix mat in the current matrix
-   inline void copy(const Matrix<T>& mat);
+   inline void copy(const MyMatrix<T>& mat);
    /// make a copy of the matrix mat in the current matrix
-   inline void copyTo(Matrix<T>& mat) const { mat.copy(*this); };
+   inline void copyTo(MyMatrix<T>& mat) const { mat.copy(*this); };
    /// make a copy of the matrix mat in the current matrix
-   inline void copyRef(const Matrix<T>& mat);
+   inline void copyRef(const MyMatrix<T>& mat);
 
    /// Debugging function
    /// Print the matrix to std::cout
@@ -328,7 +328,7 @@ template<typename T> class Matrix : public Data<T>, public AbstractMatrix<T>, pu
    // Algebric operations
    /// Transpose the current matrix and put the result in the matrix
    /// trans
-   inline void transpose(Matrix<T>& trans);
+   inline void transpose(MyMatrix<T>& trans);
    /// A <- -A
    inline void neg();
    /// add one to the diagonal
@@ -342,7 +342,7 @@ template<typename T> class Matrix : public Data<T>, public AbstractMatrix<T>, pu
    inline void svdRankOne(const Vector<T>& u0,
          Vector<T>& u, Vector<T>& v) const;
    inline void singularValues(Vector<T>& u) const;
-   inline void svd(Matrix<T>& U, Vector<T>& S, Matrix<T>&V) const;
+   inline void svd(MyMatrix<T>& U, Vector<T>& S, MyMatrix<T>&V) const;
 
    /// find the eigenvector corresponding to the largest eigenvalue
    /// when the current matrix is symmetric. u0 is the initial guess.
@@ -376,15 +376,15 @@ template<typename T> class Matrix : public Data<T>, public AbstractMatrix<T>, pu
    inline void mult(const SpVector<T>& x, Vector<T>& b, 
          const T alpha = 1.0, const T beta = 0.0) const;
    /// perform C = a*A*B + b*C, possibly transposing A or B.
-   inline void mult(const Matrix<T>& B, Matrix<T>& C, 
+   inline void mult(const MyMatrix<T>& B, MyMatrix<T>& C, 
          const bool transA = false, const bool transB = false,
          const T a = 1.0, const T b = 0.0) const;
    /// perform C = a*B*A + b*C, possibly transposing A or B.
-   inline void multSwitch(const Matrix<T>& B, Matrix<T>& C, 
+   inline void multSwitch(const MyMatrix<T>& B, MyMatrix<T>& C, 
          const bool transA = false, const bool transB = false,
          const T a = 1.0, const T b = 0.0) const;
    /// perform C = A*B, when B is sparse
-   inline void mult(const SpMatrix<T>& B, Matrix<T>& C, const bool transA = false,
+   inline void mult(const SpMatrix<T>& B, MyMatrix<T>& C, const bool transA = false,
          const bool transB = false, const T a = 1.0,
          const T b = 0.0) const;
    /// mult by a diagonal matrix on the left
@@ -392,14 +392,14 @@ template<typename T> class Matrix : public Data<T>, public AbstractMatrix<T>, pu
    /// mult by a diagonal matrix on the right
    inline void multDiagRight(const Vector<T>& diag);
    /// C = A .* B, elementwise multiplication
-   inline void mult_elementWise(const Matrix<T>& B, Matrix<T>& C) const;
-   inline void div_elementWise(const Matrix<T>& B, Matrix<T>& C) const;
+   inline void mult_elementWise(const MyMatrix<T>& B, MyMatrix<T>& C) const;
+   inline void div_elementWise(const MyMatrix<T>& B, MyMatrix<T>& C) const;
    /// XtX = A'*A
-   inline void XtX(Matrix<T>& XtX) const;
+   inline void XtX(MyMatrix<T>& XtX) const;
    /// XXt = A*A'
-   inline void XXt(Matrix<T>& XXt) const;
+   inline void XXt(MyMatrix<T>& XXt) const;
    /// XXt = A*A' where A is an upper triangular matrix
-   inline void upperTriXXt(Matrix<T>& XXt, 
+   inline void upperTriXXt(MyMatrix<T>& XXt, 
          const INTM L) const;
    /// extract the diagonal
    inline void diag(Vector<T>& d) const;
@@ -420,13 +420,13 @@ template<typename T> class Matrix : public Data<T>, public AbstractMatrix<T>, pu
    /// return vec'*A*vec when vec is sparse
    inline T quad(const SpVector<T>& vec) const;
    /// add alpha*mat to the current matrix
-   inline void add(const Matrix<T>& mat, const T alpha = 1.0);
+   inline void add(const MyMatrix<T>& mat, const T alpha = 1.0);
    /// add alpha to the current matrix
    inline void add(const T alpha);
    /// add alpha*mat to the current matrix
-   inline T dot(const Matrix<T>& mat) const;
+   inline T dot(const MyMatrix<T>& mat) const;
    /// substract the matrix mat to the current matrix
-   inline void sub(const Matrix<T>& mat);
+   inline void sub(const MyMatrix<T>& mat);
    /// inverse the elements of the matrix
    inline void inv_elem();
    /// inverse the elements of the matrix
@@ -509,7 +509,7 @@ template<typename T> class Matrix : public Data<T>, public AbstractMatrix<T>, pu
    /// performs soft-thresholding of the vector
    inline void blockThrshold(const T nu, const INTM sizeGroup);
    /// performs sparse projections of the columns 
-   inline void sparseProject(Matrix<T>& out, const T thrs,   const int mode = 1, const T lambda1 = 0,
+   inline void sparseProject(MyMatrix<T>& out, const T thrs,   const int mode = 1, const T lambda1 = 0,
          const T lambda2 = 0, const T lambda3 = 0, const bool pos = false, const int numThreads=-1);
    inline void transformFilter();
 
@@ -523,18 +523,18 @@ template<typename T> class Matrix : public Data<T>, public AbstractMatrix<T>, pu
    /// Accessor
    inline INTM V() const { return 1;};
    /// merge two dictionaries
-   inline void merge(const Matrix<T>& B, Matrix<T>& C) const;
+   inline void merge(const MyMatrix<T>& B, MyMatrix<T>& C) const;
    /// extract the rows of a matrix corresponding to a binary mask
-   inline void copyMask(Matrix<T>& out, Vector<bool>& mask) const;
+   inline void copyMask(MyMatrix<T>& out, Vector<bool>& mask) const;
 
    typedef Vector<T> col;
    static const bool is_sparse = false;
 
    protected:
    /// Forbid lazy copies
-   explicit Matrix<T>(const Matrix<T>& matrix);
+   explicit MyMatrix<T>(const MyMatrix<T>& matrix);
    /// Forbid lazy copies
-   Matrix<T>& operator=(const Matrix<T>& matrix);
+   MyMatrix<T>& operator=(const MyMatrix<T>& matrix);
 
    /// is the data allocation external or not
    bool _externAlloc;
@@ -550,7 +550,7 @@ template<typename T> class Matrix : public Data<T>, public AbstractMatrix<T>, pu
 /// Class for dense vector
 template<typename T> class Vector {
    friend class SpMatrix<T>;
-   friend class Matrix<T>;
+   friend class MyMatrix<T>;
    friend class SpVector<T>;
    public:
    /// Empty constructor
@@ -773,7 +773,7 @@ template<typename T> class Vector {
 
 /// Sparse Matrix class, CSC format
 template<typename T> class SpMatrix : public Data<T>, public AbstractMatrixB<T> {
-   friend class Matrix<T>;
+   friend class MyMatrix<T>;
    friend class SpVector<T>;
    public:
    /// Constructor, CSC format, existing data
@@ -808,7 +808,7 @@ template<typename T> class SpMatrix : public Data<T>, public AbstractMatrixB<T> 
    void getData(Vector<T>& data, const INTM index) const;
    void setData(T* v, INTM* r, INTM* pB, INTM* pE, INTM m, INTM n, INTM nzmax);
 
-   void getGroup(Matrix<T>& data, const vector_groups& groups,
+   void getGroup(MyMatrix<T>& data, const vector_groups& groups,
          const INTM i) const ;
    /// print the sparse matrix
    inline void print(const string& name) const;
@@ -840,20 +840,20 @@ template<typename T> class SpMatrix : public Data<T>, public AbstractMatrixB<T> 
 
    /// Algebraic operations
    /// aat <- A*A'
-   inline void AAt(Matrix<T>& aat) const;
+   inline void AAt(MyMatrix<T>& aat) const;
    /// aat <- A(:,indices)*A(:,indices)'
-   inline void AAt(Matrix<T>& aat, const Vector<INTM>& indices) const;
+   inline void AAt(MyMatrix<T>& aat, const Vector<INTM>& indices) const;
    /// aat <- sum_i w_i A(:,i)*A(:,i)'
-   inline void wAAt(const Vector<T>& w, Matrix<T>& aat) const;
+   inline void wAAt(const Vector<T>& w, MyMatrix<T>& aat) const;
    /// XAt <- X*A'
-   inline void XAt(const Matrix<T>& X, Matrix<T>& XAt) const;
+   inline void XAt(const MyMatrix<T>& X, MyMatrix<T>& XAt) const;
    /// XAt <- X(:,indices)*A(:,indices)'
-   inline void XAt(const Matrix<T>& X, Matrix<T>& XAt, 
+   inline void XAt(const MyMatrix<T>& X, MyMatrix<T>& XAt, 
          const Vector<INTM>& indices) const;
    /// XAt <- sum_i w_i X(:,i)*A(:,i)'
-   inline void wXAt( const Vector<T>& w, const Matrix<T>& X, 
-         Matrix<T>& XAt, const int numthreads=-1) const;
-   inline void XtX(Matrix<T>& XtX) const;
+   inline void wXAt( const Vector<T>& w, const MyMatrix<T>& X, 
+         MyMatrix<T>& XAt, const int numthreads=-1) const;
+   inline void XtX(MyMatrix<T>& XtX) const;
 
    /// y <- A'*x
    inline void multTrans(const Vector<T>& x, Vector<T>& y,
@@ -867,36 +867,36 @@ template<typename T> class SpMatrix : public Data<T>, public AbstractMatrixB<T> 
    inline void mult(const Vector<T>& x, Vector<T>& b, 
          const T alpha = 1.0, const T beta = 0.0) const;
    /// perform C = a*A*B + b*C, possibly transposing A or B.
-   inline void mult(const Matrix<T>& B, Matrix<T>& C, 
+   inline void mult(const MyMatrix<T>& B, MyMatrix<T>& C, 
          const bool transA = false, const bool transB = false,
          const T a = 1.0, const T b = 0.0) const;
    /// perform C = a*B*A + b*C, possibly transposing A or B.
-   inline void multSwitch(const Matrix<T>& B, Matrix<T>& C, 
+   inline void multSwitch(const MyMatrix<T>& B, MyMatrix<T>& C, 
          const bool transA = false, const bool transB = false,
          const T a = 1.0, const T b = 0.0) const;
    /// perform C = a*B*A + b*C, possibly transposing A or B.
-   inline void mult(const SpMatrix<T>& B, Matrix<T>& C, const bool transA = false,
+   inline void mult(const SpMatrix<T>& B, MyMatrix<T>& C, const bool transA = false,
          const bool transB = false, const T a = 1.0,
          const T b = 0.0) const;
    /// make a copy of the matrix mat in the current matrix
-   inline void copyTo(Matrix<T>& mat) const { this->toFull(mat); };
+   inline void copyTo(MyMatrix<T>& mat) const { this->toFull(mat); };
    /// dot product;
-   inline T dot(const Matrix<T>& x) const;
+   inline T dot(const MyMatrix<T>& x) const;
    inline void copyRow(const INTM i, Vector<T>& x) const;
    inline void sum_cols(Vector<T>& sum) const;
    inline void copy(const SpMatrix<T>& mat);
 
    /// Conversions
    /// copy the sparse matrix into a dense matrix
-   inline void toFull(Matrix<T>& matrix) const;
+   inline void toFull(MyMatrix<T>& matrix) const;
    /// copy the sparse matrix into a dense transposed matrix
-   inline void toFullTrans(Matrix<T>& matrix) const;
+   inline void toFullTrans(MyMatrix<T>& matrix) const;
 
    /// use the data from v, r for _v, _r
-   inline void convert(const Matrix<T>&v, const Matrix<INTM>& r,
+   inline void convert(const MyMatrix<T>&v, const MyMatrix<INTM>& r,
          const INTM K);
    /// use the data from v, r for _v, _r
-   inline void convert2(const Matrix<T>&v, const Vector<INTM>& r,
+   inline void convert2(const MyMatrix<T>&v, const Vector<INTM>& r,
          const INTM K);
    /// returns the l2 norms ^2 of the columns
    inline void norm_2sq_cols(Vector<T>& norms) const;
@@ -935,7 +935,7 @@ template<typename T> class SpMatrix : public Data<T>, public AbstractMatrixB<T> 
 
 /// Sparse vector class
 template <typename T> class SpVector {
-   friend class Matrix<T>;
+   friend class MyMatrix<T>;
    friend class SpMatrix<T>;
    friend class Vector<T>;
    public:
@@ -1024,9 +1024,9 @@ template<typename T> class ProdMatrix : public AbstractMatrix<T> {
    public:
       ProdMatrix();
       /// Constructor. Matrix D'*D is represented
-      ProdMatrix(const Matrix<T>& D, const bool high_memory = true);
+      ProdMatrix(const MyMatrix<T>& D, const bool high_memory = true);
       /// Constructor. Matrix D'*X is represented
-      ProdMatrix(const Matrix<T>& D, const Matrix<T>& X, const bool high_memory = true);
+      ProdMatrix(const MyMatrix<T>& D, const MyMatrix<T>& X, const bool high_memory = true);
       /// Constructor, D'*X is represented, with optional transpositions
       /*ProdMatrix(const SpMatrix<T>& D, const Matrix<T>& X,
         const bool transD = false, const bool transX = false);*/
@@ -1035,9 +1035,9 @@ template<typename T> class ProdMatrix : public AbstractMatrix<T> {
       ~ProdMatrix() { delete(_DtX);} ;
 
       /// set_matrices
-      inline void setMatrices(const Matrix<T>& D, const bool high_memory=true);
-      inline void setMatrices(const Matrix<T>& D, 
-            const Matrix<T>& X, const bool high_memory=true);
+      inline void setMatrices(const MyMatrix<T>& D, const bool high_memory=true);
+      inline void setMatrices(const MyMatrix<T>& D, 
+            const MyMatrix<T>& X, const bool high_memory=true);
       /// compute DtX(:,i)
       inline void copyCol(const INTM i, Vector<T>& DtXi) const;
       /// compute DtX(:,i)
@@ -1059,9 +1059,9 @@ template<typename T> class ProdMatrix : public AbstractMatrix<T> {
 
    private:
       /// Depending on the mode, DtX is a matrix, or two matrices
-      Matrix<T>* _DtX;
-      const Matrix<T>* _X;
-      const Matrix<T>* _D;
+      MyMatrix<T>* _DtX;
+      const MyMatrix<T>* _X;
+      const MyMatrix<T>* _D;
       bool _high_memory;
       INTM _n;
       INTM _m;
@@ -1074,12 +1074,12 @@ template<typename T> class ProdMatrix : public AbstractMatrix<T> {
  * ************************************/
 
 /// Constructor with existing data X of an m x n matrix
-template <typename T> Matrix<T>::Matrix(T* X, INTM m, INTM n) :
+template <typename T> MyMatrix<T>::MyMatrix(T* X, INTM m, INTM n) :
    _externAlloc(true), _X(X), _m(m), _n(n) {  };
 
 
 /// Constructor for a new m x n matrix
-template <typename T> Matrix<T>::Matrix(INTM m, INTM n) :
+template <typename T> MyMatrix<T>::MyMatrix(INTM m, INTM n) :
    _externAlloc(false), _m(m), _n(n)  {
 #pragma omp critical
       {
@@ -1088,26 +1088,26 @@ template <typename T> Matrix<T>::Matrix(INTM m, INTM n) :
    };
 
 /// Empty constructor
-template <typename T> Matrix<T>::Matrix() :
+template <typename T> MyMatrix<T>::MyMatrix() :
    _externAlloc(false), _X(NULL), _m(0), _n(0) { };
 
 /// Destructor
-template <typename T> Matrix<T>::~Matrix() {
+template <typename T> MyMatrix<T>::~MyMatrix() {
    clear();
 };
 
 /// Return a modifiable reference to X(i,j)
-template <typename T> inline T& Matrix<T>::operator()(const INTM i, const INTM j) {
+template <typename T> inline T& MyMatrix<T>::operator()(const INTM i, const INTM j) {
    return _X[j*_m+i];
 };
 
 /// Return the value X(i,j)
-template <typename T> inline T Matrix<T>::operator()(const INTM i, const INTM j) const {
+template <typename T> inline T MyMatrix<T>::operator()(const INTM i, const INTM j) const {
    return _X[j*_m+i];
 };
 
 /// Print the matrix to std::cout
-template <typename T> inline void Matrix<T>::print(const string& name) const {
+template <typename T> inline void MyMatrix<T>::print(const string& name) const {
    std::cerr << name << std::endl;
    std::cerr << _m << " x " << _n << std::endl;
    for (INTM i = 0; i<_m; ++i) {
@@ -1122,14 +1122,14 @@ template <typename T> inline void Matrix<T>::print(const string& name) const {
 };
 
 /// Copy the column i INTMo x
-template <typename T> inline void Matrix<T>::copyCol(const INTM i, Vector<T>& x) const {
+template <typename T> inline void MyMatrix<T>::copyCol(const INTM i, Vector<T>& x) const {
    assert(i >= 0 && i<_n);
    x.resize(_m);
    cblas_copy<T>(_m,_X+i*_m,1,x._X,1);
 };
 
 /// Copy the column i INTMo x
-template <typename T> inline void Matrix<T>::copyRow(const INTM i, Vector<T>& x) const {
+template <typename T> inline void MyMatrix<T>::copyRow(const INTM i, Vector<T>& x) const {
    assert(i >= 0 && i<_m);
    x.resize(_n);
    cblas_copy<T>(_n,_X+i,_m,x._X,1);
@@ -1137,23 +1137,23 @@ template <typename T> inline void Matrix<T>::copyRow(const INTM i, Vector<T>& x)
 
 
 /// Copy the column i INTMo x
-template <typename T> inline void Matrix<T>::extract_rawCol(const INTM i, T* x) const {
+template <typename T> inline void MyMatrix<T>::extract_rawCol(const INTM i, T* x) const {
    assert(i >= 0 && i<_n);
    cblas_copy<T>(_m,_X+i*_m,1,x,1);
 };
 
 /// Copy the column i INTMo x
-template <typename T> inline void Matrix<T>::add_rawCol(const INTM i, T* x, const T a) const {
+template <typename T> inline void MyMatrix<T>::add_rawCol(const INTM i, T* x, const T a) const {
    assert(i >= 0 && i<_n);
    cblas_axpy<T>(_m,a,_X+i*_m,1,x,1);
 };
 
 /// Copy the column i INTMo x
-template <typename T> inline void Matrix<T>::getData(Vector<T>& x, const INTM i) const {
+template <typename T> inline void MyMatrix<T>::getData(Vector<T>& x, const INTM i) const {
    this->copyCol(i,x);
 };
 
-template <typename T> inline void Matrix<T>::getGroup(Matrix<T>& data, 
+template <typename T> inline void MyMatrix<T>::getGroup(MyMatrix<T>& data, 
       const vector_groups& groups, const INTM i) const {
    const group& gr = groups[i];
    const INTM N = gr.size();
@@ -1167,7 +1167,7 @@ template <typename T> inline void Matrix<T>::getGroup(Matrix<T>& data,
 
 
 /// Reference the column i into the vector x
-template <typename T> inline void Matrix<T>::refCol(INTM i, Vector<T>& x) const {
+template <typename T> inline void MyMatrix<T>::refCol(INTM i, Vector<T>& x) const {
    assert(i >= 0 && i<_n);
    x.clear();
    x._X=_X+i*_m;
@@ -1176,12 +1176,12 @@ template <typename T> inline void Matrix<T>::refCol(INTM i, Vector<T>& x) const 
 };
 
 /// Reference the column i to i+n INTMo the Matrix mat
-template <typename T> inline void Matrix<T>::refSubMat(INTM i, INTM n, Matrix<T>& mat) const {
+template <typename T> inline void MyMatrix<T>::refSubMat(INTM i, INTM n, MyMatrix<T>& mat) const {
    mat.setData(_X+i*_m,_m,n);
 }
 
 /// Check wether the columns of the matrix are normalized or not
-template <typename T> inline bool Matrix<T>::isNormalized() const {
+template <typename T> inline bool MyMatrix<T>::isNormalized() const {
    for (INTM i = 0; i<_n; ++i) {
       T norm=cblas_nrm2<T>(_m,_X+_m*i,1);
       if (fabs(norm - 1.0) > 1e-6) return false;
@@ -1191,9 +1191,9 @@ template <typename T> inline bool Matrix<T>::isNormalized() const {
 
 /// clean a dictionary matrix
 template <typename T>
-inline void Matrix<T>::clean() {
+inline void MyMatrix<T>::clean() {
    this->normalize();
-   Matrix<T> G;
+   MyMatrix<T> G;
    this->XtX(G);
    T* prG = G._X;
    /// remove the diagonal
@@ -1211,24 +1211,24 @@ inline void Matrix<T>::clean() {
 };
 
 /// return the 1D-index of the value of greatest magnitude
-template <typename T> inline INTM Matrix<T>::fmax() const {
+template <typename T> inline INTM MyMatrix<T>::fmax() const {
    return cblas_iamax<T>(_n*_m,_X,1);
 };
 
 /// return the value of greatest magnitude
-template <typename T> inline T Matrix<T>::fmaxval() const {
+template <typename T> inline T MyMatrix<T>::fmaxval() const {
    return _X[cblas_iamax<T>(_n*_m,_X,1)];
 };
 
 
 /// return the 1D-index of the value of lowest magnitude
-template <typename T> inline INTM Matrix<T>::fmin() const {
+template <typename T> inline INTM MyMatrix<T>::fmin() const {
    return cblas_iamin<T>(_n*_m,_X,1);
 };
 
 /// extract a sub-matrix of a symmetric matrix
-template <typename T> inline void Matrix<T>::subMatrixSym(
-      const Vector<INTM>& indices, Matrix<T>& subMatrix) const {
+template <typename T> inline void MyMatrix<T>::subMatrixSym(
+      const Vector<INTM>& indices, MyMatrix<T>& subMatrix) const {
    INTM L = indices.n();
    subMatrix.resize(L,L);
    T* out = subMatrix._X;
@@ -1240,7 +1240,7 @@ template <typename T> inline void Matrix<T>::subMatrixSym(
 };
 
 /// Resize the matrix
-template <typename T> inline void Matrix<T>::resize(INTM m, INTM n, const bool set_zeros) {
+template <typename T> inline void MyMatrix<T>::resize(INTM m, INTM n, const bool set_zeros) {
    if (_n==n && _m==m) return;
    clear();
    _n=n;
@@ -1255,7 +1255,7 @@ template <typename T> inline void Matrix<T>::resize(INTM m, INTM n, const bool s
 };
 
 /// Change the data in the matrix
-template <typename T> inline void Matrix<T>::setData(T* X, INTM m, INTM n) {
+template <typename T> inline void MyMatrix<T>::setData(T* X, INTM m, INTM n) {
    clear();
    _X=X;
    _m=m;
@@ -1264,17 +1264,17 @@ template <typename T> inline void Matrix<T>::setData(T* X, INTM m, INTM n) {
 };
 
 /// Set all the values to zero
-template <typename T> inline void Matrix<T>::setZeros() {
+template <typename T> inline void MyMatrix<T>::setZeros() {
    memset(_X,0,_n*_m*sizeof(T));
 };
 
 /// Set all the values to a scalar
-template <typename T> inline void Matrix<T>::set(const T a) {
+template <typename T> inline void MyMatrix<T>::set(const T a) {
    for (INTM i = 0; i<_n*_m; ++i) _X[i]=a;
 };
 
 /// Clear the matrix
-template <typename T> inline void Matrix<T>::clear() {
+template <typename T> inline void MyMatrix<T>::clear() {
    if (!_externAlloc) delete[](_X);
    _n=0;
    _m=0;
@@ -1283,18 +1283,18 @@ template <typename T> inline void Matrix<T>::clear() {
 };
 
 /// Put white Gaussian noise in the matrix 
-template <typename T> inline void Matrix<T>::setAleat() {
+template <typename T> inline void MyMatrix<T>::setAleat() {
    for (INTM i = 0; i<_n*_m; ++i) _X[i]=normalDistrib<T>();
 };
 
 /// set the matrix to the identity
-template <typename T> inline void Matrix<T>::eye() {
+template <typename T> inline void MyMatrix<T>::eye() {
    this->setZeros();
    for (INTM i = 0; i<MIN(_n,_m); ++i) _X[i*_m+i] = T(1.0);
 };
 
 /// Normalize all columns to unit l2 norm
-template <typename T> inline void Matrix<T>::normalize() {
+template <typename T> inline void MyMatrix<T>::normalize() {
    //T constant = 1.0/sqrt(_m);
    for (INTM i = 0; i<_n; ++i) {
       T norm=cblas_nrm2<T>(_m,_X+_m*i,1);
@@ -1312,7 +1312,7 @@ template <typename T> inline void Matrix<T>::normalize() {
 };
 
 /// Normalize all columns which l2 norm is greater than one.
-template <typename T> inline void Matrix<T>::normalize2() {
+template <typename T> inline void MyMatrix<T>::normalize2() {
    for (INTM i = 0; i<_n; ++i) {
       T norm=cblas_nrm2<T>(_m,_X+_m*i,1);
       if (norm > 1.0) {
@@ -1323,7 +1323,7 @@ template <typename T> inline void Matrix<T>::normalize2() {
 };
 
 /// center the matrix
-template <typename T> inline void Matrix<T>::center() {
+template <typename T> inline void MyMatrix<T>::center() {
    for (INTM i = 0; i<_n; ++i) {
       Vector<T> col;
       this->refCol(i,col);
@@ -1333,7 +1333,7 @@ template <typename T> inline void Matrix<T>::center() {
 };
 
 /// center the matrix
-template <typename T> inline void Matrix<T>::center_rows() {
+template <typename T> inline void MyMatrix<T>::center_rows() {
    Vector<T> mean_rows(_m);
    mean_rows.setZeros();
    for (INTM i = 0; i<_n; ++i) 
@@ -1346,7 +1346,7 @@ template <typename T> inline void Matrix<T>::center_rows() {
 };
 
 /// center the matrix and keep the center values
-template <typename T> inline void Matrix<T>::center(Vector<T>& centers) {
+template <typename T> inline void MyMatrix<T>::center(Vector<T>& centers) {
    centers.resize(_n);
    for (INTM i = 0; i<_n; ++i) {
       Vector<T> col;
@@ -1358,32 +1358,32 @@ template <typename T> inline void Matrix<T>::center(Vector<T>& centers) {
 };
 
 /// scale the matrix by the a
-template <typename T> inline void Matrix<T>::scal(const T a) {
+template <typename T> inline void MyMatrix<T>::scal(const T a) {
    cblas_scal<T>(_n*_m,a,_X,1);
 };
 
 /// make a copy of the matrix mat in the current matrix
-template <typename T> inline void Matrix<T>::copy(const Matrix<T>& mat) {
+template <typename T> inline void MyMatrix<T>::copy(const MyMatrix<T>& mat) {
    resize(mat._m,mat._n);
 //   cblas_copy<T>(_m*_n,mat._X,1,_X,1);
    memcpy(_X,mat._X,_m*_n*sizeof(T));
 };
 
 /// make a copy of the matrix mat in the current matrix
-template <typename T> inline void Matrix<T>::copyRef(const Matrix<T>& mat) {
+template <typename T> inline void MyMatrix<T>::copyRef(const MyMatrix<T>& mat) {
    this->setData(mat.rawX(),mat.m(),mat.n());
 };
 
 /// make the matrix symmetric by copying the upper-right part
 /// INTMo the lower-left part
-template <typename T> inline void Matrix<T>::fillSymmetric() {
+template <typename T> inline void MyMatrix<T>::fillSymmetric() {
    for (INTM i = 0; i<_n; ++i) {
       for (INTM j =0; j<i; ++j) {
          _X[j*_m+i]=_X[i*_m+j];
       }
    }
 };
-template <typename T> inline void Matrix<T>::fillSymmetric2() {
+template <typename T> inline void MyMatrix<T>::fillSymmetric2() {
    for (INTM i = 0; i<_n; ++i) {
       for (INTM j =0; j<i; ++j) {
          _X[i*_m+j]=_X[j*_m+i];
@@ -1392,7 +1392,7 @@ template <typename T> inline void Matrix<T>::fillSymmetric2() {
 };
 
 
-template <typename T> inline void Matrix<T>::whiten(const INTM V) {
+template <typename T> inline void MyMatrix<T>::whiten(const INTM V) {
    const INTM sizePatch=_m/V;
    for (INTM i = 0; i<_n; ++i) {
       for (INTM j = 0; j<V; ++j) {
@@ -1408,7 +1408,7 @@ template <typename T> inline void Matrix<T>::whiten(const INTM V) {
    }
 };
 
-template <typename T> inline void Matrix<T>::whiten(Vector<T>& mean, const bool pattern) {
+template <typename T> inline void MyMatrix<T>::whiten(Vector<T>& mean, const bool pattern) {
    mean.setZeros();
    if (pattern) {
       const INTM n =static_cast<INTM>(sqrt(static_cast<T>(_m)));
@@ -1460,7 +1460,7 @@ template <typename T> inline void Matrix<T>::whiten(Vector<T>& mean, const bool 
    }
 };
 
-template <typename T> inline void Matrix<T>::whiten(Vector<T>& mean, const
+template <typename T> inline void MyMatrix<T>::whiten(Vector<T>& mean, const
       Vector<T>& mask) {
    const INTM V = mean.n();
    const INTM sizePatch=_m/V;
@@ -1485,7 +1485,7 @@ template <typename T> inline void Matrix<T>::whiten(Vector<T>& mean, const
 };
 
 
-template <typename T> inline void Matrix<T>::unwhiten(Vector<T>& mean, const bool pattern) {
+template <typename T> inline void MyMatrix<T>::unwhiten(Vector<T>& mean, const bool pattern) {
    if (pattern) {
       const INTM n =static_cast<INTM>(sqrt(static_cast<T>(_m)));
       for (INTM i = 0; i<_n; ++i) {
@@ -1514,7 +1514,7 @@ template <typename T> inline void Matrix<T>::unwhiten(Vector<T>& mean, const boo
 
 /// Transpose the current matrix and put the result in the matrix
 /// trans
-template <typename T> inline void Matrix<T>::transpose(Matrix<T>& trans) {
+template <typename T> inline void MyMatrix<T>::transpose(MyMatrix<T>& trans) {
    trans.resize(_n,_m);
    T* out = trans._X;
    for (INTM i = 0; i<_n; ++i)
@@ -1523,26 +1523,26 @@ template <typename T> inline void Matrix<T>::transpose(Matrix<T>& trans) {
 };
 
 /// A <- -A
-template <typename T> inline void Matrix<T>::neg() {
+template <typename T> inline void MyMatrix<T>::neg() {
    for (INTM i = 0; i<_n*_m; ++i) _X[i]=-_X[i];
 };
 
-template <typename T> inline void Matrix<T>::incrDiag() {
+template <typename T> inline void MyMatrix<T>::incrDiag() {
    for (INTM i = 0; i<MIN(_n,_m); ++i) ++_X[i*_m+i];
 };
 
-template <typename T> inline void Matrix<T>::addDiag(
+template <typename T> inline void MyMatrix<T>::addDiag(
       const Vector<T>& diag) {
    T* d= diag.rawX();
    for (INTM i = 0; i<MIN(_n,_m); ++i) _X[i*_m+i] += d[i];
 };
 
-template <typename T> inline void Matrix<T>::addDiag(
+template <typename T> inline void MyMatrix<T>::addDiag(
       const T diag) {
    for (INTM i = 0; i<MIN(_n,_m); ++i) _X[i*_m+i] += diag;
 };
 
-template <typename T> inline void Matrix<T>::addToCols(
+template <typename T> inline void MyMatrix<T>::addToCols(
       const Vector<T>& cent) {
    Vector<T> col;
    for (INTM i = 0; i<_n; ++i) {
@@ -1551,7 +1551,7 @@ template <typename T> inline void Matrix<T>::addToCols(
    }
 };
 
-template <typename T> inline void Matrix<T>::addVecToCols(
+template <typename T> inline void MyMatrix<T>::addVecToCols(
       const Vector<T>& vec, const T a) {
    Vector<T> col;
    for (INTM i = 0; i<_n; ++i) {
@@ -1562,7 +1562,7 @@ template <typename T> inline void Matrix<T>::addVecToCols(
 
 /// perform a rank one approximation uv' using the power method
 /// u0 is an initial guess for u (can be empty).
-template <typename T> inline void Matrix<T>::svdRankOne(const Vector<T>& u0,
+template <typename T> inline void MyMatrix<T>::svdRankOne(const Vector<T>& u0,
       Vector<T>& u, Vector<T>& v) const {
    int i;
    const int max_iter=MAX(_m,MAX(_n,200));
@@ -1585,16 +1585,16 @@ template <typename T> inline void Matrix<T>::svdRankOne(const Vector<T>& u0,
    }
 };
 
-template <typename T> inline void Matrix<T>::singularValues(Vector<T>& u) const {
+template <typename T> inline void MyMatrix<T>::singularValues(Vector<T>& u) const {
    u.resize(MIN(_m,_n));
    if (_m > 10*_n) {
-      Matrix<T> XtX;
+      MyMatrix<T> XtX;
       this->XtX(XtX);
       syev<T>(no,lower,_n,XtX.rawX(),_n,u.rawX());
       u.thrsPos();
       u.Sqrt();
    } else if (_n > 10*_m) { 
-      Matrix<T> XXt;
+      MyMatrix<T> XXt;
       this->XXt(XXt);
       syev<T>(no,lower,_m,XXt.rawX(),_m,u.rawX());
       u.thrsPos();
@@ -1602,19 +1602,19 @@ template <typename T> inline void Matrix<T>::singularValues(Vector<T>& u) const 
    } else {
       T* vu = NULL;
       T* vv = NULL;
-      Matrix<T> copyX;
+      MyMatrix<T> copyX;
       copyX.copy(*this);
       gesvd<T>(no,no,_m,_n,copyX._X,_m,u.rawX(),vu,1,vv,1);
    }
 };
 
-template <typename T> inline void Matrix<T>::svd(Matrix<T>& U, Vector<T>& S, Matrix<T>&V) const {
+template <typename T> inline void MyMatrix<T>::svd(MyMatrix<T>& U, Vector<T>& S, MyMatrix<T>&V) const {
    const INTM num_eig=MIN(_m,_n);
    S.resize(num_eig);
    U.resize(_m,num_eig);
    V.resize(num_eig,_n);
    if (_m > 10*_n) {
-      Matrix<T> Vt(_n,_n);
+      MyMatrix<T> Vt(_n,_n);
       this->XtX(Vt);
       syev<T>(allV,lower,_n,Vt.rawX(),_n,S.rawX());
       S.thrsPos();
@@ -1646,7 +1646,7 @@ template <typename T> inline void Matrix<T>::svd(Matrix<T>& U, Vector<T>& S, Mat
          }
       V.multDiagLeft(inveigs);
    } else {
-      Matrix<T> copyX;
+      MyMatrix<T> copyX;
       copyX.copy(*this);
       gesvd<T>(reduced,reduced,_m,_n,copyX._X,_m,S.rawX(),U.rawX(),_m,V.rawX(),num_eig);
    }
@@ -1655,7 +1655,7 @@ template <typename T> inline void Matrix<T>::svd(Matrix<T>& U, Vector<T>& S, Mat
 /// find the eigenvector corresponding to the largest eigenvalue
 /// when the current matrix is symmetric. u0 is the initial guess.
 /// using two iterations of the power method
-template <typename T> inline void Matrix<T>::eigLargestSymApprox(
+template <typename T> inline void MyMatrix<T>::eigLargestSymApprox(
       const Vector<T>& u0, Vector<T>& u) const {
    int i,j;
    const int max_iter=100;
@@ -1698,7 +1698,7 @@ template <typename T> inline void Matrix<T>::eigLargestSymApprox(
 /// using the power method. It 
 /// returns the eigenvalue. u0 is an initial guess for the 
 /// eigenvector.
-template <typename T> inline T Matrix<T>::eigLargestMagnSym(
+template <typename T> inline T MyMatrix<T>::eigLargestMagnSym(
       const Vector<T>& u0, Vector<T>& u) const {
    const int max_iter=1000;
    const T eps=10e-6;
@@ -1721,7 +1721,7 @@ template <typename T> inline T Matrix<T>::eigLargestMagnSym(
 
 /// returns the value of the eigenvalue with the largest magnitude
 /// using the power iteration.
-template <typename T> inline T Matrix<T>::eigLargestMagnSym() const {
+template <typename T> inline T MyMatrix<T>::eigLargestMagnSym() const {
    const int max_iter=1000;
    const T eps=10e-6;
    Vector<T> u(_m);
@@ -1742,13 +1742,13 @@ template <typename T> inline T Matrix<T>::eigLargestMagnSym() const {
 };
 
 /// inverse the matrix when it is symmetric
-template <typename T> inline void Matrix<T>::invSym() {
+template <typename T> inline void MyMatrix<T>::invSym() {
    sytri<T>(upper,_n,_X,_n);
    this->fillSymmetric();
 };
 
 /// perform b = alpha*A'x + beta*b
-template <typename T> inline void Matrix<T>::multTrans(const Vector<T>& x, 
+template <typename T> inline void MyMatrix<T>::multTrans(const Vector<T>& x, 
       Vector<T>& b, const T a, const T c) const {
    b.resize(_n);
    //   assert(x._n == _m && b._n == _n);
@@ -1756,7 +1756,7 @@ template <typename T> inline void Matrix<T>::multTrans(const Vector<T>& x,
 };
 
 /// perform b = A'x, when x is sparse
-template <typename T> inline void Matrix<T>::multTrans(const SpVector<T>& x, 
+template <typename T> inline void MyMatrix<T>::multTrans(const SpVector<T>& x, 
       Vector<T>& b, const T alpha, const T beta) const {
    b.resize(_n);
    Vector<T> col;
@@ -1774,7 +1774,7 @@ template <typename T> inline void Matrix<T>::multTrans(const SpVector<T>& x,
    }
 };
 
-template <typename T> inline void Matrix<T>::multTrans(
+template <typename T> inline void MyMatrix<T>::multTrans(
       const Vector<T>& x, Vector<T>& b, const Vector<bool>& active) const {
    b.setZeros();
    Vector<T> col;
@@ -1788,7 +1788,7 @@ template <typename T> inline void Matrix<T>::multTrans(
 };
 
 /// perform b = alpha*A*x+beta*b
-template <typename T> inline void Matrix<T>::mult(const Vector<T>& x, 
+template <typename T> inline void MyMatrix<T>::mult(const Vector<T>& x, 
       Vector<T>& b, const T a, const T c) const {
    //  assert(x._n == _n && b._n == _m);
    b.resize(_m);
@@ -1796,7 +1796,7 @@ template <typename T> inline void Matrix<T>::mult(const Vector<T>& x,
 };
 
 /// perform b = alpha*A*x + beta*b, when x is sparse
-template <typename T> inline void Matrix<T>::mult(const SpVector<T>& x, 
+template <typename T> inline void MyMatrix<T>::mult(const SpVector<T>& x, 
       Vector<T>& b, const T a, const T a2) const {
    if (!a2) {
       b.setZeros();
@@ -1815,8 +1815,8 @@ template <typename T> inline void Matrix<T>::mult(const SpVector<T>& x,
 };
 
 /// perform C = a*A*B + b*C, possibly transposing A or B.
-template <typename T> inline void Matrix<T>::mult(const Matrix<T>& B, 
-      Matrix<T>& C, const bool transA, const bool transB,
+template <typename T> inline void MyMatrix<T>::mult(const MyMatrix<T>& B, 
+      MyMatrix<T>& C, const bool transA, const bool transB,
       const T a, const T b) const {
    CBLAS_TRANSPOSE trA,trB;
    INTM m,k,n;
@@ -1845,7 +1845,7 @@ template <typename T> inline void Matrix<T>::mult(const Matrix<T>& B,
 
 /// perform C = a*B*A + b*C, possibly transposing A or B.
 template <typename T>
-inline void Matrix<T>::multSwitch(const Matrix<T>& B, Matrix<T>& C, 
+inline void MyMatrix<T>::multSwitch(const MyMatrix<T>& B, MyMatrix<T>& C, 
       const bool transA, const bool transB,
       const T a, const T b) const {
    B.mult(*this,C,transB,transA,a,b);
@@ -1853,7 +1853,7 @@ inline void Matrix<T>::multSwitch(const Matrix<T>& B, Matrix<T>& C,
 
 /// perform C = A*B, when B is sparse
 template <typename T>
-inline void Matrix<T>::mult(const SpMatrix<T>& B, Matrix<T>& C,
+inline void MyMatrix<T>::mult(const SpMatrix<T>& B, MyMatrix<T>& C,
       const bool transA, const bool transB,
       const T a, const T b) const {
    if (transA) {
@@ -1922,7 +1922,7 @@ inline void Matrix<T>::mult(const SpMatrix<T>& B, Matrix<T>& C,
 
 /// mult by a diagonal matrix on the left
 template <typename T>
-   inline void Matrix<T>::multDiagLeft(const Vector<T>& diag) {
+   inline void MyMatrix<T>::multDiagLeft(const Vector<T>& diag) {
       if (diag.n() != _m)
          return;
       T* d = diag.rawX();
@@ -1934,7 +1934,7 @@ template <typename T>
    };
 
 /// mult by a diagonal matrix on the right
-template <typename T> inline void Matrix<T>::multDiagRight(
+template <typename T> inline void MyMatrix<T>::multDiagRight(
       const Vector<T>& diag) {
    if (diag.n() != _n)
       return;
@@ -1947,16 +1947,16 @@ template <typename T> inline void Matrix<T>::multDiagRight(
 };
 
 /// C = A .* B, elementwise multiplication
-template <typename T> inline void Matrix<T>::mult_elementWise(
-      const Matrix<T>& B, Matrix<T>& C) const {
+template <typename T> inline void MyMatrix<T>::mult_elementWise(
+      const MyMatrix<T>& B, MyMatrix<T>& C) const {
    assert(_n == B._n && _m == B._m);
    C.resize(_m,_n);
    vMul<T>(_n*_m,_X,B._X,C._X);
 };
 
 /// C = A .* B, elementwise multiplication
-template <typename T> inline void Matrix<T>::div_elementWise(
-      const Matrix<T>& B, Matrix<T>& C) const {
+template <typename T> inline void MyMatrix<T>::div_elementWise(
+      const MyMatrix<T>& B, MyMatrix<T>& C) const {
    assert(_n == B._n && _m == B._m);
    C.resize(_m,_n);
    vDiv<T>(_n*_m,_X,B._X,C._X);
@@ -1964,7 +1964,7 @@ template <typename T> inline void Matrix<T>::div_elementWise(
 
 
 /// XtX = A'*A
-template <typename T> inline void Matrix<T>::XtX(Matrix<T>& xtx) const {
+template <typename T> inline void MyMatrix<T>::XtX(MyMatrix<T>& xtx) const {
    xtx.resize(_n,_n);
    cblas_syrk<T>(CblasColMajor,CblasUpper,CblasTrans,_n,_m,T(1.0),
          _X,_m,T(),xtx._X,_n);
@@ -1972,7 +1972,7 @@ template <typename T> inline void Matrix<T>::XtX(Matrix<T>& xtx) const {
 };
 
 /// XXt = A*At
-template <typename T> inline void Matrix<T>::XXt(Matrix<T>& xxt) const {
+template <typename T> inline void MyMatrix<T>::XXt(MyMatrix<T>& xxt) const {
    xxt.resize(_m,_m);
    cblas_syrk<T>(CblasColMajor,CblasUpper,CblasNoTrans,_m,_n,T(1.0),
          _X,_m,T(),xxt._X,_m);
@@ -1980,7 +1980,7 @@ template <typename T> inline void Matrix<T>::XXt(Matrix<T>& xxt) const {
 };
 
 /// XXt = A*A' where A is an upper triangular matrix
-template <typename T> inline void Matrix<T>::upperTriXXt(Matrix<T>& XXt, const INTM L) const {
+template <typename T> inline void MyMatrix<T>::upperTriXXt(MyMatrix<T>& XXt, const INTM L) const {
    XXt.resize(L,L);
    for (INTM i = 0; i<L; ++i) {
       cblas_syr<T>(CblasColMajor,CblasUpper,i+1,T(1.0),_X+i*_m,1,XXt._X,L);
@@ -1990,7 +1990,7 @@ template <typename T> inline void Matrix<T>::upperTriXXt(Matrix<T>& XXt, const I
 
 
 /// extract the diagonal
-template <typename T> inline void Matrix<T>::diag(Vector<T>& dv) const {
+template <typename T> inline void MyMatrix<T>::diag(Vector<T>& dv) const {
    INTM size_diag=MIN(_n,_m);
    dv.resize(size_diag);
    T* const d = dv.rawX();
@@ -1999,7 +1999,7 @@ template <typename T> inline void Matrix<T>::diag(Vector<T>& dv) const {
 };
 
 /// set the diagonal
-template <typename T> inline void Matrix<T>::setDiag(const Vector<T>& dv) {
+template <typename T> inline void MyMatrix<T>::setDiag(const Vector<T>& dv) {
    INTM size_diag=MIN(_n,_m);
    T* const d = dv.rawX();
    for (INTM i = 0; i<size_diag; ++i)
@@ -2007,7 +2007,7 @@ template <typename T> inline void Matrix<T>::setDiag(const Vector<T>& dv) {
 };
 
 /// set the diagonal
-template <typename T> inline void Matrix<T>::setDiag(const T val) {
+template <typename T> inline void MyMatrix<T>::setDiag(const T val) {
    INTM size_diag=MIN(_n,_m);
    for (INTM i = 0; i<size_diag; ++i)
       _X[i*_m+i]=val;
@@ -2015,18 +2015,18 @@ template <typename T> inline void Matrix<T>::setDiag(const T val) {
 
 
 /// each element of the matrix is replaced by its exponential
-template <typename T> inline void Matrix<T>::exp() {
+template <typename T> inline void MyMatrix<T>::exp() {
    vExp<T>(_n*_m,_X,_X);
 };
-template <typename T> inline void Matrix<T>::Sqrt() {
+template <typename T> inline void MyMatrix<T>::Sqrt() {
    vSqrt<T>(_n*_m,_X,_X);
 };
 
-template <typename T> inline void Matrix<T>::Invsqrt() {
+template <typename T> inline void MyMatrix<T>::Invsqrt() {
    vInvSqrt<T>(_n*_m,_X,_X);
 };
 /// return vec1'*A*vec2, where vec2 is sparse
-template <typename T> inline T Matrix<T>::quad(
+template <typename T> inline T MyMatrix<T>::quad(
       const SpVector<T>& vec) const {
    T sum = T();
    INTM L = vec._L;
@@ -2038,13 +2038,13 @@ template <typename T> inline T Matrix<T>::quad(
    return sum;
 };
 
-template <typename T> inline void Matrix<T>::quad_mult(const Vector<T>& vec1,
+template <typename T> inline void MyMatrix<T>::quad_mult(const Vector<T>& vec1,
       const SpVector<T>& vec2, Vector<T>& y, const T a, const T b) const {
    const INTM size_y= y.n();
    const INTM nn = _n/size_y;
    //y.resize(size_y);
    //y.setZeros();
-   Matrix<T> tmp;
+   MyMatrix<T> tmp;
    for (INTM i = 0; i<size_y; ++i) {
       tmp.setData(_X+(i*nn)*_m,_m,nn);
       y[i]=b*y[i]+a*tmp.quad(vec1,vec2);
@@ -2052,7 +2052,7 @@ template <typename T> inline void Matrix<T>::quad_mult(const Vector<T>& vec1,
 }
 
 /// return vec'*A*vec when vec is sparse
-template <typename T> inline T Matrix<T>::quad(
+template <typename T> inline T MyMatrix<T>::quad(
       const Vector<T>& vec1, const SpVector<T>& vec) const {
    T sum = T();
    INTM L = vec._L;
@@ -2067,35 +2067,35 @@ template <typename T> inline T Matrix<T>::quad(
 };
 
 /// add alpha*mat to the current matrix
-template <typename T> inline void Matrix<T>::add(const Matrix<T>& mat, const T alpha) {
+template <typename T> inline void MyMatrix<T>::add(const MyMatrix<T>& mat, const T alpha) {
    assert(mat._m == _m && mat._n == _n);
    cblas_axpy<T>(_n*_m,alpha,mat._X,1,_X,1);
 };
 
 /// add alpha*mat to the current matrix
-template <typename T> inline T Matrix<T>::dot(const Matrix<T>& mat) const {
+template <typename T> inline T MyMatrix<T>::dot(const MyMatrix<T>& mat) const {
    assert(mat._m == _m && mat._n == _n);
    return cblas_dot<T>(_n*_m,mat._X,1,_X,1);
 };
 
 
 /// add alpha to the current matrix
-template <typename T> inline void Matrix<T>::add(const T alpha) {
+template <typename T> inline void MyMatrix<T>::add(const T alpha) {
    for (INTM i = 0; i<_n*_m; ++i) _X[i]+=alpha;
 };
 
 /// substract the matrix mat to the current matrix
-template <typename T> inline void Matrix<T>::sub(const Matrix<T>& mat) {
+template <typename T> inline void MyMatrix<T>::sub(const MyMatrix<T>& mat) {
    vSub<T>(_n*_m,_X,mat._X,_X);
 };
 
 /// compute the sum of the magnitude of the matrix values
-template <typename T> inline T Matrix<T>::asum() const {
+template <typename T> inline T MyMatrix<T>::asum() const {
    return cblas_asum<T>(_n*_m,_X,1);
 };
 
 /// returns the trace of the matrix
-template <typename T> inline T Matrix<T>::trace() const {
+template <typename T> inline T MyMatrix<T>::trace() const {
    T sum=T();
    INTM m = MIN(_n,_m);
    for (INTM i = 0; i<m; ++i) 
@@ -2104,23 +2104,23 @@ template <typename T> inline T Matrix<T>::trace() const {
 };
 
 /// return ||A||_F
-template <typename T> inline T Matrix<T>::normF() const {
+template <typename T> inline T MyMatrix<T>::normF() const {
    return cblas_nrm2<T>(_n*_m,_X,1);
 };
 
-template <typename T> inline T Matrix<T>::mean() const {
+template <typename T> inline T MyMatrix<T>::mean() const {
    Vector<T> vec;
    this->toVect(vec);
    return vec.mean();
 };
 
 /// return ||A||_F^2
-template <typename T> inline T Matrix<T>::normFsq() const {
+template <typename T> inline T MyMatrix<T>::normFsq() const {
    return cblas_dot<T>(_n*_m,_X,1,_X,1);
 };
 
 /// return ||At||_{inf,2}
-template <typename T> inline T Matrix<T>::norm_inf_2_col() const {
+template <typename T> inline T MyMatrix<T>::norm_inf_2_col() const {
    Vector<T> col;
    T max = -1.0;
    for (INTM i = 0; i<_n; ++i) {
@@ -2133,7 +2133,7 @@ template <typename T> inline T Matrix<T>::norm_inf_2_col() const {
 };
 
 /// return ||At||_{1,2}
-template <typename T> inline T Matrix<T>::norm_1_2_col() const {
+template <typename T> inline T MyMatrix<T>::norm_1_2_col() const {
    Vector<T> col;
    T sum = 0.0;
    for (INTM i = 0; i<_n; ++i) {
@@ -2144,7 +2144,7 @@ template <typename T> inline T Matrix<T>::norm_1_2_col() const {
 };
 
 /// returns the l2 norms of the columns
-template <typename T> inline void Matrix<T>::norm_2_rows(
+template <typename T> inline void MyMatrix<T>::norm_2_rows(
       Vector<T>& norms) const {
    norms.resize(_m);
    norms.setZeros();
@@ -2156,7 +2156,7 @@ template <typename T> inline void Matrix<T>::norm_2_rows(
 };
 
 /// returns the l2 norms of the columns
-template <typename T> inline void Matrix<T>::norm_2sq_rows(
+template <typename T> inline void MyMatrix<T>::norm_2sq_rows(
       Vector<T>& norms) const {
    norms.resize(_m);
    norms.setZeros();
@@ -2167,7 +2167,7 @@ template <typename T> inline void Matrix<T>::norm_2sq_rows(
 
 
 /// returns the l2 norms of the columns
-template <typename T> inline void Matrix<T>::norm_2_cols(
+template <typename T> inline void MyMatrix<T>::norm_2_cols(
       Vector<T>& norms) const {
    norms.resize(_n);
    Vector<T> col;
@@ -2179,7 +2179,7 @@ template <typename T> inline void Matrix<T>::norm_2_cols(
 
 
 /// returns the linf norms of the columns
-template <typename T> inline void Matrix<T>::norm_inf_cols(Vector<T>& norms) const {
+template <typename T> inline void MyMatrix<T>::norm_inf_cols(Vector<T>& norms) const {
    norms.resize(_n);
    Vector<T> col;
    for (INTM i = 0; i<_n; ++i) {
@@ -2189,7 +2189,7 @@ template <typename T> inline void Matrix<T>::norm_inf_cols(Vector<T>& norms) con
 };
 
 /// returns the linf norms of the columns
-template <typename T> inline void Matrix<T>::norm_inf_rows(Vector<T>& norms) const {
+template <typename T> inline void MyMatrix<T>::norm_inf_rows(Vector<T>& norms) const {
    norms.resize(_m);
    norms.setZeros();
    for (INTM i = 0; i<_n; ++i) 
@@ -2198,7 +2198,7 @@ template <typename T> inline void Matrix<T>::norm_inf_rows(Vector<T>& norms) con
 };
 
 /// returns the linf norms of the columns
-template <typename T> inline void Matrix<T>::norm_l1_rows(Vector<T>& norms) const {
+template <typename T> inline void MyMatrix<T>::norm_l1_rows(Vector<T>& norms) const {
    norms.resize(_m);
    norms.setZeros();
    for (INTM i = 0; i<_n; ++i) 
@@ -2209,7 +2209,7 @@ template <typename T> inline void Matrix<T>::norm_l1_rows(Vector<T>& norms) cons
 
 
 /// returns the l2 norms of the columns
-template <typename T> inline void Matrix<T>::norm_2sq_cols(
+template <typename T> inline void MyMatrix<T>::norm_2sq_cols(
       Vector<T>& norms) const {
    norms.resize(_n);
    Vector<T> col;
@@ -2220,7 +2220,7 @@ template <typename T> inline void Matrix<T>::norm_2sq_cols(
 };
 
 template <typename T> 
-inline void Matrix<T>::sum_cols(Vector<T>& sum) const {
+inline void MyMatrix<T>::sum_cols(Vector<T>& sum) const {
    sum.resize(_m);
    sum.setZeros();
    Vector<T> tmp;
@@ -2231,14 +2231,14 @@ inline void Matrix<T>::sum_cols(Vector<T>& sum) const {
 };
 
 /// Compute the mean of the columns
-template <typename T> inline void Matrix<T>::meanCol(Vector<T>& mean) const {
+template <typename T> inline void MyMatrix<T>::meanCol(Vector<T>& mean) const {
    Vector<T> ones(_n);
    ones.set(T(1.0/_n));
    this->mult(ones,mean,1.0,0.0);
 };
 
 /// Compute the mean of the rows
-template <typename T> inline void Matrix<T>::meanRow(Vector<T>& mean) const {
+template <typename T> inline void MyMatrix<T>::meanRow(Vector<T>& mean) const {
    Vector<T> ones(_m);
    ones.set(T(1.0/_m));
    this->multTrans(ones,mean,1.0,0.0);
@@ -2246,7 +2246,7 @@ template <typename T> inline void Matrix<T>::meanRow(Vector<T>& mean) const {
 
 
 /// fill the matrix with the row given
-template <typename T> inline void Matrix<T>::fillRow(const Vector<T>& row) {
+template <typename T> inline void MyMatrix<T>::fillRow(const Vector<T>& row) {
    for (INTM i = 0; i<_n; ++i) {
       T val = row[i];
       for (INTM j = 0; j<_m; ++j) {
@@ -2256,7 +2256,7 @@ template <typename T> inline void Matrix<T>::fillRow(const Vector<T>& row) {
 };
 
 /// fill the matrix with the row given
-template <typename T> inline void Matrix<T>::extractRow(const INTM j,
+template <typename T> inline void MyMatrix<T>::extractRow(const INTM j,
       Vector<T>& row) const {
    row.resize(_n);
    for (INTM i = 0; i<_n; ++i) {
@@ -2265,7 +2265,7 @@ template <typename T> inline void Matrix<T>::extractRow(const INTM j,
 };
 
 /// fill the matrix with the row given
-template <typename T> inline void Matrix<T>::setRow(const INTM j,
+template <typename T> inline void MyMatrix<T>::setRow(const INTM j,
       const Vector<T>& row) {
    for (INTM i = 0; i<_n; ++i) {
       _X[i*_m+j]=row[i];
@@ -2273,7 +2273,7 @@ template <typename T> inline void Matrix<T>::setRow(const INTM j,
 };
 
 /// fill the matrix with the row given
-template <typename T> inline void Matrix<T>::addRow(const INTM j,
+template <typename T> inline void MyMatrix<T>::addRow(const INTM j,
       const Vector<T>& row, const T a) {
    if (a==1.0) {
       for (INTM i = 0; i<_n; ++i) {
@@ -2288,14 +2288,14 @@ template <typename T> inline void Matrix<T>::addRow(const INTM j,
 
 
 /// perform soft-thresholding of the matrix, with the threshold nu
-template <typename T> inline void Matrix<T>::softThrshold(const T nu) {
+template <typename T> inline void MyMatrix<T>::softThrshold(const T nu) {
    Vector<T> vec;
    toVect(vec);
    vec.softThrshold(nu);
 };
 
 /// perform soft-thresholding of the matrix, with the threshold nu
-template <typename T> inline void Matrix<T>::hardThrshold(const T nu) {
+template <typename T> inline void MyMatrix<T>::hardThrshold(const T nu) {
    Vector<T> vec;
    toVect(vec);
    vec.hardThrshold(nu);
@@ -2303,14 +2303,14 @@ template <typename T> inline void Matrix<T>::hardThrshold(const T nu) {
 
 
 /// perform thresholding of the matrix, with the threshold nu
-template <typename T> inline void Matrix<T>::thrsmax(const T nu) {
+template <typename T> inline void MyMatrix<T>::thrsmax(const T nu) {
    Vector<T> vec;
    toVect(vec);
    vec.thrsmax(nu);
 };
 
 /// perform thresholding of the matrix, with the threshold nu
-template <typename T> inline void Matrix<T>::thrsmin(const T nu) {
+template <typename T> inline void MyMatrix<T>::thrsmin(const T nu) {
    Vector<T> vec;
    toVect(vec);
    vec.thrsmin(nu);
@@ -2318,14 +2318,14 @@ template <typename T> inline void Matrix<T>::thrsmin(const T nu) {
 
 
 /// perform soft-thresholding of the matrix, with the threshold nu
-template <typename T> inline void Matrix<T>::inv_elem() {
+template <typename T> inline void MyMatrix<T>::inv_elem() {
    Vector<T> vec;
    toVect(vec);
    vec.inv();
 };
 
 /// perform soft-thresholding of the matrix, with the threshold nu
-template <typename T> inline void Matrix<T>::blockThrshold(const T nu,
+template <typename T> inline void MyMatrix<T>::blockThrshold(const T nu,
       const INTM sizeGroup) {
    for (INTM i = 0; i<_n; ++i) {
       INTM j;
@@ -2349,7 +2349,7 @@ template <typename T> inline void Matrix<T>::blockThrshold(const T nu,
    }
 }
 
-template <typename T> inline void Matrix<T>::sparseProject(Matrix<T>& Y, 
+template <typename T> inline void MyMatrix<T>::sparseProject(MyMatrix<T>& Y, 
       const T thrs,   const int mode, const T lambda1,
       const T lambda2, const T lambda3, const bool pos,
       const int numThreads) {
@@ -2381,7 +2381,7 @@ template <typename T> inline void Matrix<T>::sparseProject(Matrix<T>& Y,
 
 
 /// perform soft-thresholding of the matrix, with the threshold nu
-template <typename T> inline void Matrix<T>::thrsPos() {
+template <typename T> inline void MyMatrix<T>::thrsPos() {
    Vector<T> vec;
    toVect(vec);
    vec.thrsPos();
@@ -2389,13 +2389,13 @@ template <typename T> inline void Matrix<T>::thrsPos() {
 
 
 /// perform A <- A + alpha*vec1*vec2'
-template <typename T> inline void Matrix<T>::rank1Update(
+template <typename T> inline void MyMatrix<T>::rank1Update(
       const Vector<T>& vec1, const Vector<T>& vec2, const T alpha) {
    cblas_ger<T>(CblasColMajor,_m,_n,alpha,vec1._X,1,vec2._X,1,_X,_m);
 };
 
 /// perform A <- A + alpha*vec1*vec2', when vec1 is sparse
-template <typename T> inline void Matrix<T>::rank1Update(
+template <typename T> inline void MyMatrix<T>::rank1Update(
       const SpVector<T>& vec1, const Vector<T>& vec2, const T alpha) {
    INTM* r = vec1._r;
    T* v = vec1._v;
@@ -2417,13 +2417,13 @@ template <typename T> inline void Matrix<T>::rank1Update(
 };
 
 template <typename T>
-inline void Matrix<T>::rank1Update_mult(const Vector<T>& vec1, 
+inline void MyMatrix<T>::rank1Update_mult(const Vector<T>& vec1, 
       const Vector<T>& vec1b,
       const SpVector<T>& vec2,
       const T alpha) {
    const INTM nn = vec1b.n();
    const INTM size_A = _n/nn;
-   Matrix<T> tmp;
+   MyMatrix<T> tmp;
    for (INTM i = 0; i<nn; ++i) {
       tmp.setData(_X+i*size_A*_m,_m,size_A);
       tmp.rank1Update(vec1,vec2,alpha*vec1b[i]);
@@ -2431,7 +2431,7 @@ inline void Matrix<T>::rank1Update_mult(const Vector<T>& vec1,
 };
 
 /// perform A <- A + alpha*vec1*vec2', when vec1 is sparse
-template <typename T> inline void Matrix<T>::rank1Update(
+template <typename T> inline void MyMatrix<T>::rank1Update(
       const SpVector<T>& vec1, const SpVector<T>& vec2, const T alpha) {
    INTM* r = vec1._r;
    T* v = vec1._v;
@@ -2454,7 +2454,7 @@ template <typename T> inline void Matrix<T>::rank1Update(
 
 
 /// perform A <- A + alpha*vec1*vec2', when vec2 is sparse
-template <typename T> inline void Matrix<T>::rank1Update(
+template <typename T> inline void MyMatrix<T>::rank1Update(
       const Vector<T>& vec1, const SpVector<T>& vec2, const T alpha) {
    INTM* r = vec2._r;
    T* v = vec2._v;
@@ -2466,7 +2466,7 @@ template <typename T> inline void Matrix<T>::rank1Update(
 };
 
 /// perform A <- A + alpha*vec1*vec1', when vec1 is sparse
-template <typename T> inline void Matrix<T>::rank1Update(
+template <typename T> inline void MyMatrix<T>::rank1Update(
       const SpVector<T>& vec1, const T alpha) {
    INTM* r = vec1._r;
    T* v = vec1._v;
@@ -2487,7 +2487,7 @@ template <typename T> inline void Matrix<T>::rank1Update(
 
 
 /// compute x, such that b = Ax, 
-template <typename T> inline void Matrix<T>::conjugateGradient(
+template <typename T> inline void MyMatrix<T>::conjugateGradient(
       const Vector<T>& b, Vector<T>& x, const T tol, const int itermax) const {
    Vector<T> R,P,AP;
    R.copy(b);
@@ -2509,7 +2509,7 @@ template <typename T> inline void Matrix<T>::conjugateGradient(
    };
 };
 
-template <typename T> inline void Matrix<T>::drop(char* fileName) const {
+template <typename T> inline void MyMatrix<T>::drop(char* fileName) const {
    std::ofstream f;
    f.precision(12);
    f.flags(std::ios_base::scientific);
@@ -2524,7 +2524,7 @@ template <typename T> inline void Matrix<T>::drop(char* fileName) const {
 };
 
 /// compute a Nadaraya Watson estimator
-template <typename T> inline void Matrix<T>::NadarayaWatson(
+template <typename T> inline void MyMatrix<T>::NadarayaWatson(
       const Vector<INTM>& ind, const T sigma) {
    if (ind.n() != _n) return;
 
@@ -2538,7 +2538,7 @@ template <typename T> inline void Matrix<T>::NadarayaWatson(
       INTM count = 0;
       for (INTM j = 0; j<_n; ++j)
          if (ind[j] == i) indicesGroup[count++]=j;
-      Matrix<T> Xm(_m,count);
+      MyMatrix<T> Xm(_m,count);
       Vector<T> col, col2;
       for (INTM j= 0; j<count; ++j) {
          this->refCol(indicesGroup[j],col);
@@ -2547,7 +2547,7 @@ template <typename T> inline void Matrix<T>::NadarayaWatson(
       }
       Vector<T> norms;
       Xm.norm_2sq_cols(norms);
-      Matrix<T> weights;
+      MyMatrix<T> weights;
       Xm.XtX(weights);
       weights.scal(T(-2.0));
       Vector<T> ones(Xm.n());
@@ -2560,7 +2560,7 @@ template <typename T> inline void Matrix<T>::NadarayaWatson(
       weights.mult(ones,den);
       den.inv();
       weights.multDiagRight(den);
-      Matrix<T> num;
+      MyMatrix<T> num;
       Xm.mult(weights,num);
       for (INTM j= 0; j<count; ++j) {
          this->refCol(indicesGroup[j],col);
@@ -2571,7 +2571,7 @@ template <typename T> inline void Matrix<T>::NadarayaWatson(
 };
 
 /// make a sparse copy of the current matrix
-template <typename T> inline void Matrix<T>::toSparse(SpMatrix<T>& out) const {
+template <typename T> inline void MyMatrix<T>::toSparse(SpMatrix<T>& out) const {
    out.clear();
    INTM count=0;
    INTM* pB;
@@ -2611,7 +2611,7 @@ template <typename T> inline void Matrix<T>::toSparse(SpMatrix<T>& out) const {
 };
 
 /// make a sparse copy of the current matrix
-template <typename T> inline void Matrix<T>::toSparseTrans(
+template <typename T> inline void MyMatrix<T>::toSparseTrans(
       SpMatrix<T>& out) {
    out.clear();
    INTM count=0;
@@ -2652,7 +2652,7 @@ template <typename T> inline void Matrix<T>::toSparseTrans(
 };
 
 /// make a reference of the matrix to a vector vec 
-template <typename T> inline void Matrix<T>::toVect(
+template <typename T> inline void MyMatrix<T>::toVect(
       Vector<T>& vec) const {
    vec.clear();
    vec._externAlloc=true;
@@ -2661,10 +2661,10 @@ template <typename T> inline void Matrix<T>::toVect(
 };
 
 /// merge two dictionaries
-template <typename T> inline void Matrix<T>::merge(const Matrix<T>& B,
-      Matrix<T>& C) const {
+template <typename T> inline void MyMatrix<T>::merge(const MyMatrix<T>& B,
+      MyMatrix<T>& C) const {
    const INTM K =_n; 
-   Matrix<T> G;
+   MyMatrix<T> G;
    this->mult(B,G,true,false);
    std::list<INTM> list;
    for (INTM i = 0; i<G.n(); ++i) {
@@ -4090,7 +4090,7 @@ inline void Vector<T>::copyMask(Vector<T>& out, Vector<bool>& mask) const {
 };
 
 template <typename T>
-inline void Matrix<T>::copyMask(Matrix<T>& out, Vector<bool>& mask) const {
+inline void MyMatrix<T>::copyMask(MyMatrix<T>& out, Vector<bool>& mask) const {
    out.resize(_m,_n);
    INTM count=0;
    for (INTM i = 0; i<mask.n(); ++i)
@@ -4210,7 +4210,7 @@ void SpMatrix<T>::setData(T* v, INTM* r, INTM* pB, INTM* pE, INTM m, INTM n, INT
 }
 
 template<typename T>
-void SpMatrix<T>::getGroup(Matrix<T>& data, const vector_groups& groups,  const INTM i) const {
+void SpMatrix<T>::getGroup(MyMatrix<T>& data, const vector_groups& groups,  const INTM i) const {
    const group& gr = groups[i];
    const INTM N = gr.size();
    data.resize(_m,N);
@@ -4376,7 +4376,7 @@ inline void SpMatrix<T>::mult(const SpVector<T>& x, Vector<T>& y,
 
 /// perform C = a*A*B + b*C, possibly transposing A or B.
 template <typename T>
-inline void SpMatrix<T>::mult(const Matrix<T>& B, Matrix<T>& C, 
+inline void SpMatrix<T>::mult(const MyMatrix<T>& B, MyMatrix<T>& C, 
       const bool transA, const bool transB,
       const T a, const T b) const {
    if (transA) {
@@ -4444,7 +4444,7 @@ inline void SpMatrix<T>::mult(const Matrix<T>& B, Matrix<T>& C,
 
 /// perform C = a*A*B + b*C, possibly transposing A or B.
 template <typename T>
-inline void SpMatrix<T>::mult(const SpMatrix<T>& B, Matrix<T>& C, 
+inline void SpMatrix<T>::mult(const SpMatrix<T>& B, MyMatrix<T>& C, 
       const bool transA, const bool transB,
       const T a, const T b) const {
    if (transA) {
@@ -4512,14 +4512,14 @@ inline void SpMatrix<T>::mult(const SpMatrix<T>& B, Matrix<T>& C,
 
 /// perform C = a*B*A + b*C, possibly transposing A or B.
 template <typename T>
-inline void SpMatrix<T>::multSwitch(const Matrix<T>& B, Matrix<T>& C, 
+inline void SpMatrix<T>::multSwitch(const MyMatrix<T>& B, MyMatrix<T>& C, 
       const bool transA, const bool transB,
       const T a, const T b) const {
    B.mult(*this,C,transB,transA,a,b);
 };
 
 template <typename T>
-inline T SpMatrix<T>::dot(const Matrix<T>& x) const {
+inline T SpMatrix<T>::dot(const MyMatrix<T>& x) const {
    T sum=0;
    for (INTM i = 0; i<_n; ++i)
       for (INTM j = _pB[i]; j<_pE[i]; ++j) {
@@ -4586,7 +4586,7 @@ inline void SpMatrix<T>::sum_cols(Vector<T>& sum) const {
 };
 
 /// aat <- A*A'
-template <typename T> inline void SpMatrix<T>::AAt(Matrix<T>& aat) const {
+template <typename T> inline void SpMatrix<T>::AAt(MyMatrix<T>& aat) const {
    INTM i,j,k;
    INTM K=_m;
    INTM M=_n;
@@ -4620,7 +4620,7 @@ template <typename T> inline void SpMatrix<T>::AAt(Matrix<T>& aat) const {
 }
 
 template <typename T>
-inline void SpMatrix<T>::XtX(Matrix<T>& XtX) const {
+inline void SpMatrix<T>::XtX(MyMatrix<T>& XtX) const {
    XtX.resize(_n,_n);
    XtX.setZeros();
    SpVector<T> col;
@@ -4634,7 +4634,7 @@ inline void SpMatrix<T>::XtX(Matrix<T>& XtX) const {
 
 
 /// aat <- A(:,indices)*A(:,indices)'
-template <typename T> inline void SpMatrix<T>::AAt(Matrix<T>& aat,
+template <typename T> inline void SpMatrix<T>::AAt(MyMatrix<T>& aat,
       const Vector<INTM>& indices) const {
    INTM i,j,k;
    INTM K=_m;
@@ -4671,7 +4671,7 @@ template <typename T> inline void SpMatrix<T>::AAt(Matrix<T>& aat,
 
 /// aat <- sum_i w_i A(:,i)*A(:,i)'
 template <typename T> inline void SpMatrix<T>::wAAt(const Vector<T>& w,
-      Matrix<T>& aat) const {
+      MyMatrix<T>& aat) const {
    INTM i,j,k;
    INTM K=_m;
    INTM M=_n;
@@ -4705,8 +4705,8 @@ template <typename T> inline void SpMatrix<T>::wAAt(const Vector<T>& w,
 }
 
 /// XAt <- X*A'
-template <typename T> inline void SpMatrix<T>::XAt(const Matrix<T>& X,
-      Matrix<T>& XAt) const {
+template <typename T> inline void SpMatrix<T>::XAt(const MyMatrix<T>& X,
+      MyMatrix<T>& XAt) const {
    INTM j,i;
    INTM n=X._m;
    INTM K=_m;
@@ -4738,8 +4738,8 @@ template <typename T> inline void SpMatrix<T>::XAt(const Matrix<T>& X,
 };
 
 /// XAt <- X(:,indices)*A(:,indices)'
-template <typename T> inline void SpMatrix<T>::XAt(const Matrix<T>& X,
-      Matrix<T>& XAt, const Vector<INTM>& indices) const {
+template <typename T> inline void SpMatrix<T>::XAt(const MyMatrix<T>& X,
+      MyMatrix<T>& XAt, const Vector<INTM>& indices) const {
    INTM j,i;
    INTM n=X._m;
    INTM K=_m;
@@ -4773,7 +4773,7 @@ template <typename T> inline void SpMatrix<T>::XAt(const Matrix<T>& X,
 
 /// XAt <- sum_i w_i X(:,i)*A(:,i)'
 template <typename T> inline void SpMatrix<T>::wXAt(const Vector<T>& w,
-      const Matrix<T>& X, Matrix<T>& XAt, const int numThreads) const {
+      const MyMatrix<T>& X, MyMatrix<T>& XAt, const int numThreads) const {
    INTM j,l,i;
    INTM n=X._m;
    INTM K=_m;
@@ -4811,7 +4811,7 @@ template <typename T> inline void SpMatrix<T>::wXAt(const Vector<T>& w,
 };
 
 /// copy the sparse matrix into a dense matrix
-template<typename T> inline void SpMatrix<T>::toFull(Matrix<T>& matrix) const {
+template<typename T> inline void SpMatrix<T>::toFull(MyMatrix<T>& matrix) const {
    matrix.resize(_m,_n);
    matrix.setZeros();
    T* out = matrix._X;
@@ -4824,7 +4824,7 @@ template<typename T> inline void SpMatrix<T>::toFull(Matrix<T>& matrix) const {
 
 /// copy the sparse matrix into a full dense matrix
 template <typename T> inline void SpMatrix<T>::toFullTrans(
-      Matrix<T>& matrix) const {
+      MyMatrix<T>& matrix) const {
    matrix.resize(_n,_m);
    matrix.setZeros();
    T* out = matrix._X;
@@ -4837,8 +4837,8 @@ template <typename T> inline void SpMatrix<T>::toFullTrans(
 
 
 /// use the data from v, r for _v, _r
-template <typename T> inline void SpMatrix<T>::convert(const Matrix<T>&vM, 
-      const Matrix<INTM>& rM, const INTM K) {
+template <typename T> inline void SpMatrix<T>::convert(const MyMatrix<T>&vM, 
+      const MyMatrix<INTM>& rM, const INTM K) {
    const INTM M = rM.n();
    const INTM L = rM.m();
    const INTM* r = rM.X();
@@ -4861,7 +4861,7 @@ template <typename T> inline void SpMatrix<T>::convert(const Matrix<T>&vM,
 
 /// use the data from v, r for _v, _r
 template <typename T> inline void SpMatrix<T>::convert2(
-      const Matrix<T>&vM, const Vector<INTM>& rv, const INTM K) {
+      const MyMatrix<T>&vM, const Vector<INTM>& rv, const INTM K) {
    const INTM M = vM.n();
    const INTM L = vM.m();
    INTM* r = rv.rawX();
@@ -5098,20 +5098,20 @@ template <typename T> ProdMatrix<T>::ProdMatrix()  {
 };
 
 /// Constructor. Matrix D'*X is represented
-template <typename T> ProdMatrix<T>::ProdMatrix(const Matrix<T>& D,
+template <typename T> ProdMatrix<T>::ProdMatrix(const MyMatrix<T>& D,
       const bool high_memory) {
-   if (high_memory) _DtX = new Matrix<T>();
+   if (high_memory) _DtX = new MyMatrix<T>();
    this->setMatrices(D,high_memory);
 };
 
 /// Constructor. Matrix D'*X is represented
-template <typename T> ProdMatrix<T>::ProdMatrix(const Matrix<T>& D, const Matrix<T>& X,
+template <typename T> ProdMatrix<T>::ProdMatrix(const MyMatrix<T>& D, const MyMatrix<T>& X,
       const bool high_memory) {
-   if (high_memory) _DtX = new Matrix<T>();
+   if (high_memory) _DtX = new MyMatrix<T>();
    this->setMatrices(D,X,high_memory);
 };
 
-template <typename T> inline void ProdMatrix<T>::setMatrices(const Matrix<T>& D, const Matrix<T>& X,
+template <typename T> inline void ProdMatrix<T>::setMatrices(const MyMatrix<T>& D, const MyMatrix<T>& X,
       const bool high_memory)  {
    _high_memory=high_memory;
    _m = D.n(); 
@@ -5127,7 +5127,7 @@ template <typename T> inline void ProdMatrix<T>::setMatrices(const Matrix<T>& D,
 };
 
 template <typename T> inline void ProdMatrix<T>::setMatrices(
-      const Matrix<T>& D, const bool high_memory) {
+      const MyMatrix<T>& D, const bool high_memory) {
    _high_memory=high_memory;
    _m = D.n(); 
    _n = D.n();
@@ -5337,26 +5337,26 @@ template <typename T> class ShiftMatrix : public AbstractMatrixB<T> {
             const T alpha = 1.0, const T beta = 0.0) const;
 
       /// perform C = a*A*B + b*C, possibly transposing A or B.
-      virtual void mult(const Matrix<T>& B, Matrix<T>& C, 
+      virtual void mult(const MyMatrix<T>& B, MyMatrix<T>& C, 
             const bool transA = false, const bool transB = false,
             const T a = 1.0, const T b = 0.0) const;
 
-      virtual void mult(const SpMatrix<T>& B, Matrix<T>& C, 
+      virtual void mult(const SpMatrix<T>& B, MyMatrix<T>& C, 
             const bool transA = false, const bool transB = false,
             const T a = 1.0, const T b = 0.0) const;
 
       /// perform C = a*B*A + b*C, possibly transposing A or B.
-      virtual void multSwitch(const Matrix<T>& B, Matrix<T>& C, 
+      virtual void multSwitch(const MyMatrix<T>& B, MyMatrix<T>& C, 
             const bool transA = false, const bool transB = false,
             const T a = 1.0, const T b = 0.0) const;
 
       /// XtX = A'*A
-      virtual void XtX(Matrix<T>& XtX) const;
+      virtual void XtX(MyMatrix<T>& XtX) const;
 
       virtual void copyRow(const INTM i, Vector<T>& x) const;
 
-      virtual void copyTo(Matrix<T>& copy) const;
-      virtual T dot(const Matrix<T>& x) const;
+      virtual void copyTo(MyMatrix<T>& copy) const;
+      virtual T dot(const MyMatrix<T>& x) const;
 
       virtual void print(const string& name) const;
 
@@ -5451,25 +5451,25 @@ template <typename T> void ShiftMatrix<T>::mult(const
 };
 
 /// perform C = a*A*B + b*C, possibly transposing A or B.
-template <typename T> void ShiftMatrix<T>::mult(const Matrix<T>&
-      B, Matrix<T>& C, const bool transA, const bool transB, const T a, const T
+template <typename T> void ShiftMatrix<T>::mult(const MyMatrix<T>&
+      B, MyMatrix<T>& C, const bool transA, const bool transB, const T a, const T
       b) const {
    cerr << "Shift Matrix is used in inadequate setting" << endl;
 }
 
-template <typename T> void ShiftMatrix<T>::mult(const SpMatrix<T>& B, Matrix<T>& C, 
+template <typename T> void ShiftMatrix<T>::mult(const SpMatrix<T>& B, MyMatrix<T>& C, 
       const bool transA, const bool transB, const T a, const T b) const {
    cerr << "Shift Matrix is used in inadequate setting" << endl;
 }
 
 /// perform C = a*B*A + b*C, possibly transposing A or B.
 template <typename T> void ShiftMatrix<T>::multSwitch(const
-      Matrix<T>& B, Matrix<T>& C, const bool transA, const bool transB,
+      MyMatrix<T>& B, MyMatrix<T>& C, const bool transA, const bool transB,
       const T a, const T b) const {
    cerr << "Shift Matrix is used in inadequate setting" << endl;
 }
 
-template <typename T> void ShiftMatrix<T>::XtX(Matrix<T>& XtX) const {
+template <typename T> void ShiftMatrix<T>::XtX(MyMatrix<T>& XtX) const {
    cerr << "Shift Matrix is used in inadequate setting" << endl;
 };
 
@@ -5483,12 +5483,12 @@ template <typename T> void ShiftMatrix<T>::copyRow(const INTM ind, Vector<T>& x)
    if (_centered) x.sub(_means);
 };
 
-template <typename T> void ShiftMatrix<T>::copyTo(Matrix<T>& x) const {
+template <typename T> void ShiftMatrix<T>::copyTo(MyMatrix<T>& x) const {
    cerr << "Shift Matrix is used in inadequate setting" << endl;
 };
 
 
-template <typename T> T ShiftMatrix<T>::dot(const Matrix<T>& x) const {
+template <typename T> T ShiftMatrix<T>::dot(const MyMatrix<T>& x) const {
    cerr << "Shift Matrix is used in inadequate setting" << endl;
    return 0;
 };
@@ -5521,26 +5521,26 @@ template <typename T> class DoubleRowMatrix : public AbstractMatrixB<T> {
             const T alpha = 1.0, const T beta = 0.0) const;
 
       /// perform C = a*A*B + b*C, possibly transposing A or B.
-      virtual void mult(const Matrix<T>& B, Matrix<T>& C, 
+      virtual void mult(const MyMatrix<T>& B, MyMatrix<T>& C, 
             const bool transA = false, const bool transB = false,
             const T a = 1.0, const T b = 0.0) const;
 
-      virtual void mult(const SpMatrix<T>& B, Matrix<T>& C, 
+      virtual void mult(const SpMatrix<T>& B, MyMatrix<T>& C, 
             const bool transA = false, const bool transB = false,
             const T a = 1.0, const T b = 0.0) const;
 
       /// perform C = a*B*A + b*C, possibly transposing A or B.
-      virtual void multSwitch(const Matrix<T>& B, Matrix<T>& C, 
+      virtual void multSwitch(const MyMatrix<T>& B, MyMatrix<T>& C, 
             const bool transA = false, const bool transB = false,
             const T a = 1.0, const T b = 0.0) const;
 
       /// XtX = A'*A
-      virtual void XtX(Matrix<T>& XtX) const;
+      virtual void XtX(MyMatrix<T>& XtX) const;
 
       virtual void copyRow(const INTM i, Vector<T>& x) const;
 
-      virtual void copyTo(Matrix<T>& copy) const;
-      virtual T dot(const Matrix<T>& x) const;
+      virtual void copyTo(MyMatrix<T>& copy) const;
+      virtual T dot(const MyMatrix<T>& x) const;
 
       virtual void print(const string& name) const;
 
@@ -5600,14 +5600,14 @@ template <typename T> void DoubleRowMatrix<T>::mult(const
 };
 
 /// perform C = a*A*B + b*C, possibly transposing A or B.
-template <typename T> void DoubleRowMatrix<T>::mult(const Matrix<T>&
-      B, Matrix<T>& C, const bool transA, const bool transB, const T a, const T
+template <typename T> void DoubleRowMatrix<T>::mult(const MyMatrix<T>&
+      B, MyMatrix<T>& C, const bool transA, const bool transB, const T a, const T
       b) const {
    FLAG(5)
    cerr << "Double Matrix is used in inadequate setting" << endl;
 }
 
-template <typename T> void DoubleRowMatrix<T>::mult(const SpMatrix<T>& B, Matrix<T>& C, 
+template <typename T> void DoubleRowMatrix<T>::mult(const SpMatrix<T>& B, MyMatrix<T>& C, 
       const bool transA, const bool transB, const T a, const T b) const {
    FLAG(4)
    cerr << "Double Matrix is used in inadequate setting" << endl;
@@ -5615,13 +5615,13 @@ template <typename T> void DoubleRowMatrix<T>::mult(const SpMatrix<T>& B, Matrix
 
 /// perform C = a*B*A + b*C, possibly transposing A or B.
 template <typename T> void DoubleRowMatrix<T>::multSwitch(const
-      Matrix<T>& B, Matrix<T>& C, const bool transA, const bool transB,
+      MyMatrix<T>& B, MyMatrix<T>& C, const bool transA, const bool transB,
       const T a, const T b) const {
    FLAG(3)
    cerr << "Double Matrix is used in inadequate setting" << endl;
 }
 
-template <typename T> void DoubleRowMatrix<T>::XtX(Matrix<T>& XtX) const {
+template <typename T> void DoubleRowMatrix<T>::XtX(MyMatrix<T>& XtX) const {
    FLAG(2)
    cerr << "Double Matrix is used in inadequate setting" << endl;
 };
@@ -5631,13 +5631,13 @@ template <typename T> void DoubleRowMatrix<T>::copyRow(const INTM ind, Vector<T>
    _inputmatrix->copyRow(indd2,x);
 };
 
-template <typename T> void DoubleRowMatrix<T>::copyTo(Matrix<T>& x) const {
+template <typename T> void DoubleRowMatrix<T>::copyTo(MyMatrix<T>& x) const {
    FLAG(1)
    cerr << "Double Matrix is used in inadequate setting" << endl;
 };
 
 
-template <typename T> T DoubleRowMatrix<T>::dot(const Matrix<T>& x) const {
+template <typename T> T DoubleRowMatrix<T>::dot(const MyMatrix<T>& x) const {
    FLAG(0)
    cerr << "Double Matrix is used in inadequate setting" << endl;
    return 0;
@@ -5773,8 +5773,8 @@ template <typename T> void AbstractMatrixB<T>::ridgeCG(const Vector<T>& b,
    }
 };
 
-template <typename T> void AbstractMatrixB<T>::ridgeCG(const Matrix<T>& mb,
-      Matrix<T>& mx, const T lambda, const T tol, const int itermax,const int numThreads) const {
+template <typename T> void AbstractMatrixB<T>::ridgeCG(const MyMatrix<T>& mb,
+      MyMatrix<T>& mx, const T lambda, const T tol, const int itermax,const int numThreads) const {
    init_omp(numThreads);
    const int num_probs=mb.n();
    int i = 0;
@@ -5789,8 +5789,8 @@ template <typename T> void AbstractMatrixB<T>::ridgeCG(const Matrix<T>& mb,
 }
 
 
-template <typename T> void AbstractMatrixB<T>::ridgeCG(const Matrix<T>& mb, const Matrix<T>& mdelta,
-      Matrix<T>& mx, const T lambda, const T tol, const int itermax,const int numThreads) const {
+template <typename T> void AbstractMatrixB<T>::ridgeCG(const MyMatrix<T>& mb, const MyMatrix<T>& mdelta,
+      MyMatrix<T>& mx, const T lambda, const T tol, const int itermax,const int numThreads) const {
    init_omp(numThreads);
    const int num_probs=mb.n();
    int i = 0;

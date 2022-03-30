@@ -78,12 +78,12 @@ inline void callFunction(mxArray* plhs[], const mxArray*prhs[],const int nrhs,
 //            printf("L is changed to %d\n",K);
          L=K;
       }
-      Matrix<T> X(prX,n,M);
-      Matrix<T> D(prD,n,K);
+      MyMatrix<T> X(prX,n,M);
+      MyMatrix<T> D(prD,n,K);
       SpMatrix<T> alpha;
 
       if (nlhs == 2) {
-         Matrix<T> norm(K,length_path);
+         MyMatrix<T> norm(K,length_path);
          norm.setZeros();
          if (cholesky) {
             lasso<T>(X,D,alpha,L,lambda,lambda2,mode,pos,ols,numThreads,&norm,length_path);
@@ -97,7 +97,7 @@ inline void callFunction(mxArray* plhs[], const mxArray*prhs[],const int nrhs,
             if (norms_col[i]) ++length;
          plhs[1]=createMatrix<T>(K,length);
          T* pr_norm=reinterpret_cast<T*>(mxGetPr(plhs[1]));
-         Matrix<T> norm2(pr_norm,K,length);
+         MyMatrix<T> norm2(pr_norm,K,length);
          Vector<T> col;
          for (int i = 0; i<length; ++i) {
             norm2.refCol(i,col);
@@ -167,13 +167,13 @@ inline void callFunction(mxArray* plhs[], const mxArray*prhs[],const int nrhs,
 //            printf("L is changed to %d\n",K);
          L=K;
       }
-      Matrix<T> X(prX,n,M);
-      Matrix<T> G(prG,K,K);
-      Matrix<T> DtR(prDtR,K,M);
+      MyMatrix<T> X(prX,n,M);
+      MyMatrix<T> G(prG,K,K);
+      MyMatrix<T> DtR(prDtR,K,M);
       SpMatrix<T> alpha;
 
       if (nlhs == 2) {
-         Matrix<T> norm(K,length_path);
+         MyMatrix<T> norm(K,length_path);
          norm.setZeros();
          if (cholesky) {
             lasso<T>(X,G,DtR,alpha,L,lambda,mode,pos,ols,numThreads,&norm,length_path);
@@ -187,7 +187,7 @@ inline void callFunction(mxArray* plhs[], const mxArray*prhs[],const int nrhs,
             if (norms_col[i]) ++length;
          plhs[1]=createMatrix<T>(K,length);
          T* pr_norm=reinterpret_cast<T*>(mxGetPr(plhs[1]));
-         Matrix<T> norm2(pr_norm,K,length);
+         MyMatrix<T> norm2(pr_norm,K,length);
          Vector<T> col;
          for (int i = 0; i<length; ++i) {
             norm2.refCol(i,col);

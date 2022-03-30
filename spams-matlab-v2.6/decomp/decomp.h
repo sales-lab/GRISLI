@@ -51,21 +51,21 @@ static char nonUnit='n';
 ///   * optimized for a large number of signals (precompute the Gramm matrix
 
 template <typename T>
-void omp(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalpha, 
+void omp(const MyMatrix<T>& X, const MyMatrix<T>& D, SpMatrix<T>& spalpha, 
       const int *L, const T* eps, const T* lambda, const bool vecL = false,
       const bool vecEps = false, const bool Lambda=false, const int numThreads=-1,
-      Matrix<T>* path = NULL);
+      MyMatrix<T>* path = NULL);
 
 template <typename T>
-void omp_mask(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalpha, const Matrix<bool>& mask,
+void omp_mask(const MyMatrix<T>& X, const MyMatrix<T>& D, SpMatrix<T>& spalpha, const MyMatrix<bool>& mask,
       const int *L, const T* eps, const T* lambda, const bool vecL = false,
       const bool vecEps = false, const bool Lambda=false, const int numThreads=-1,
-      Matrix<T>* path = NULL);
+      MyMatrix<T>* path = NULL);
 
 /// Auxiliary function of omp
 template <typename T>
 void coreORMP(Vector<T>& scores, Vector<T>& norm, Vector<T>& tmp, 
-      Matrix<T>& Un, Matrix<T>& Undn, Matrix<T>& Unds, Matrix<T>& Gs, 
+      MyMatrix<T>& Un, MyMatrix<T>& Undn, MyMatrix<T>& Unds, MyMatrix<T>& Gs, 
       Vector<T>& Rdn, const AbstractMatrix<T>& G, Vector<INTM>& ind, 
       Vector<T>& RUn, T& normX, const T* eps, const int* L, const T* lambda,
       T* path = NULL);
@@ -80,8 +80,8 @@ void coreORMPB(Vector<T>& RtD, const AbstractMatrix<T>& G, Vector<INTM>& ind,
 /// Auxiliary function of omp
 /*template <typename T>
 void coreORMPWeighted(Vector<T>& scores, Vector<T>& weights, Vector<T>& norm,
-      Vector<T>& tmp, Matrix<T>& Un, Matrix<T>& Undn, Matrix<T>& Unds,
-      Matrix<T>& Gs, Vector<T>& Rdn, const AbstractMatrix<T>& G, Vector<INTM>&
+      Vector<T>& tmp, MyMatrix<T>& Un, MyMatrix<T>& Undn, MyMatrix<T>& Unds,
+      MyMatrix<T>& Gs, Vector<T>& Rdn, const AbstractMatrix<T>& G, Vector<INTM>&
       ind, Vector<T>& RUn, T& normX,  const T eps, const int L, const T lambda);*/
 
 /* **************
@@ -109,40 +109,40 @@ enum constraint_type { L1COEFFS, L2ERROR, PENALTY, SPARSITY, L2ERROR2, PENALTY2,
 ///   * parallel
 ///   * optimized for a big number of signals (precompute the Gramm matrix
 template <typename T>
-void lasso(const Matrix<T>& X, const Matrix<T>& D, 
+void lasso(const MyMatrix<T>& X, const MyMatrix<T>& D, 
       SpMatrix<T>& spalpha, 
       int L, const T constraint, const T lambda2 = 0, constraint_type mode = PENALTY,
       const bool pos = false, const bool ols = false, const int numThreads=-1,
-      Matrix<T>* path = NULL, const int length_path=-1);
+      MyMatrix<T>* path = NULL, const int length_path=-1);
 
 template <typename T>
 void lasso(const Data<T>& X, const AbstractMatrix<T>& G, const AbstractMatrix<T>& DtX,
       SpMatrix<T>& spalpha, 
       int L, const T constraint, constraint_type mode = PENALTY,
       const bool pos = false, const bool ols = false, const int numThreads=-1,
-      Matrix<T>* path = NULL, const int length_path=-1);
+      MyMatrix<T>* path = NULL, const int length_path=-1);
 
 /// second implementation using matrix inversion lemma
 template <typename T>
-void lasso2(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalpha,
+void lasso2(const MyMatrix<T>& X, const MyMatrix<T>& D, SpMatrix<T>& spalpha,
       int L, const T constraint,const T lambda2=0, constraint_type mode = PENALTY, const bool pos = false,
-      const int numThreads = -1, Matrix<T>* path = NULL, const int length_path=-1);
+      const int numThreads = -1, MyMatrix<T>* path = NULL, const int length_path=-1);
 
 template <typename T>
 void lasso2(const Data<T>& X, const AbstractMatrix<T>& G, const AbstractMatrix<T>& DtX,
       SpMatrix<T>& spalpha,
       int L, const T constraint, constraint_type mode = PENALTY, const bool pos = false,
-      const int numThreads = -1, Matrix<T>* path = NULL, const int length_path=-1);
+      const int numThreads = -1, MyMatrix<T>* path = NULL, const int length_path=-1);
 
 /// second implementation using matrix inversion lemma
 template <typename T>
-void lasso_mask(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalpha, const Matrix<bool>& mask,
+void lasso_mask(const MyMatrix<T>& X, const MyMatrix<T>& D, SpMatrix<T>& spalpha, const MyMatrix<bool>& mask,
       int L, const T constraint,const T lambda2=0, constraint_type mode = PENALTY, const bool pos = false,
       const int numThreads = -1);
 
 /// second implementation using matrix inversion lemma
 template <typename T>
-void lassoReweighted(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalpha,
+void lassoReweighted(const MyMatrix<T>& X, const MyMatrix<T>& D, SpMatrix<T>& spalpha,
       int L, const T constraint, constraint_type mode, const bool pos,
       const T sigma,
       const int numThreads = -1);
@@ -151,9 +151,9 @@ void lassoReweighted(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalph
 template <typename T>
 void coreLARS(Vector<T>& Rdn, Vector<T>& Xdn, Vector<T>& A, 
       Vector<T>& u, Vector<T>& sig,
-      Vector<T>& av, Vector<T>& RUn, Matrix<T>& Un, 
-      Matrix<T>& Unds, Matrix<T>& Gs,
-      Matrix<T>& Gsa, Matrix<T>& workT, Matrix<T>& R,
+      Vector<T>& av, Vector<T>& RUn, MyMatrix<T>& Un, 
+      MyMatrix<T>& Unds, MyMatrix<T>& Gs,
+      MyMatrix<T>& Gsa, MyMatrix<T>& workT, MyMatrix<T>& R,
       const AbstractMatrix<T>& G,T& normX, 
       Vector<int>& ind,Vector<T>& coeffs,const T constraint,
       const bool ols = false,
@@ -163,13 +163,13 @@ void coreLARS(Vector<T>& Rdn, Vector<T>& Xdn, Vector<T>& A,
 
 template <typename T>
 void coreLARS2(Vector<T>& DtR, const AbstractMatrix<T>& G,
-      Matrix<T>& Gs,
-      Matrix<T>& Ga,
-      Matrix<T>& invGs,
+      MyMatrix<T>& Gs,
+      MyMatrix<T>& Ga,
+      MyMatrix<T>& invGs,
       Vector<T>& u,
       Vector<T>& coeffs,
       Vector<INTM>& ind,
-      Matrix<T>& work,
+      MyMatrix<T>& work,
       T& normX,
       const constraint_type mode,
       const T constraint, const bool pos = false,
@@ -183,14 +183,14 @@ void coreLARS2(Vector<T>& DtR, const AbstractMatrix<T>& G,
 
 template <typename T>
 void coreLARS2W(Vector<T>& DtR, const AbstractMatrix<T>& G,
-      Matrix<T>& Gs,
-      Matrix<T>& Ga,
-      Matrix<T>& invGs,
+      MyMatrix<T>& Gs,
+      MyMatrix<T>& Ga,
+      MyMatrix<T>& invGs,
       Vector<T>& u,
       Vector<T>& coeffs,
       const Vector<T>& weights,
       Vector<INTM>& ind,
-      Matrix<T>& work,
+      MyMatrix<T>& work,
       T& normX,
       const constraint_type mode,
       const T constraint, const bool pos = false);
@@ -206,8 +206,8 @@ template <typename T>
 void downDateLasso(int& j,int& minBasis,T& normX,const bool ols,
       const bool pos, Vector<T>& Rdn, INTM* ind,
       T* coeffs, Vector<T>& sig, Vector<T>& av,
-      Vector<T>& Xdn, Vector<T>& RUn,Matrix<T>& Unm, Matrix<T>& Gsm,
-      Matrix<T>& Gsam, Matrix<T>& Undsm, Matrix<T>& Rm);
+      Vector<T>& Xdn, Vector<T>& RUn,MyMatrix<T>& Unm, MyMatrix<T>& Gsm,
+      MyMatrix<T>& Gsam, MyMatrix<T>& Undsm, MyMatrix<T>& Rm);
 
 
 /* ************************
@@ -220,13 +220,13 @@ void downDateLasso(int& j,int& minBasis,T& normX,const bool ols,
 /// \forall i, \min_{\alpha_i} constraint*||\alpha_i||_1 + ...
 ///                        ... ||\X_i-D\alpha_i||_2^2 <= T
 template <typename T>
-void ist(const Matrix<T>& X, const Matrix<T>& D, 
+void ist(const MyMatrix<T>& X, const MyMatrix<T>& D, 
       SpMatrix<T>& spalpha, T lambda, constraint_type mode,
       const int itermax=500, 
       const T tol = 0.5, const int numThreads = -1);
 template <typename T>
-void ist(const Matrix<T>& X, const Matrix<T>& D, 
-      Matrix<T>& spalpha, T lambda, constraint_type mode,
+void ist(const MyMatrix<T>& X, const MyMatrix<T>& D, 
+      MyMatrix<T>& spalpha, T lambda, constraint_type mode,
       const int itermax=500, 
       const T tol = 0.5, const int numThreads=-1);
 
@@ -252,16 +252,16 @@ void coreISTconstrained(const AbstractMatrix<T>& G, Vector<T>& DtR, Vector<T>& c
 
 /// ist for group Lasso
 template <typename T>
-void ist_groupLasso(const Matrix<T>* XT, const Matrix<T>& D,
-      Matrix<T>* alphaT, const int Ngroups, 
+void ist_groupLasso(const MyMatrix<T>* XT, const MyMatrix<T>& D,
+      MyMatrix<T>* alphaT, const int Ngroups, 
       const T lambda, const constraint_type mode,
       const int itermax = 500,
       const T tol = 0.5, const int numThreads = -1);
 
 /// Auxiliary function for ist_groupLasso
 template <typename T>
-void coreGroupIST(const Matrix<T>& G, Matrix<T>& RtD,
-      Matrix<T>& alphat,
+void coreGroupIST(const MyMatrix<T>& G, MyMatrix<T>& RtD,
+      MyMatrix<T>& alphat,
       const T thrs,
       const int itermax=500,
       const T tol = 0.5);
@@ -269,8 +269,8 @@ void coreGroupIST(const Matrix<T>& G, Matrix<T>& RtD,
 
 /// Auxiliary function for ist_groupLasso
 template <typename T>
-void coreGroupISTConstrained(const Matrix<T>& G, Matrix<T>& RtD,
-      Matrix<T>& alphat, const T normR,
+void coreGroupISTConstrained(const MyMatrix<T>& G, MyMatrix<T>& RtD,
+      MyMatrix<T>& alphat, const T normR,
       const T eps,
       const int itermax=500,
       const T tol = 0.5);
@@ -278,30 +278,30 @@ void coreGroupISTConstrained(const Matrix<T>& G, Matrix<T>& RtD,
 /// auxiliary function for ist_groupLasso
 template <typename T>
 T computeError(const T normX2,const Vector<T>& norms,
-      const Matrix<T>& G,const Matrix<T>& RtD,const Matrix<T>& alphat);
+      const MyMatrix<T>& G,const MyMatrix<T>& RtD,const MyMatrix<T>& alphat);
 
 /// auxiliary function for ist_groupLasso
 template <typename T>
 T computeError(const T normX2,
-      const Matrix<T>& G,const Vector<T>& DtR,const Vector<T>& coeffs,
+      const MyMatrix<T>& G,const Vector<T>& DtR,const Vector<T>& coeffs,
       SpVector<T>& coeffs_tmp);
 
 /* ******************
  * Simultaneous OMP 
  * *****************/
 template <typename T>
-void somp(const Matrix<T>* X, const Matrix<T>& D, SpMatrix<T>* spalpha, 
+void somp(const MyMatrix<T>* X, const MyMatrix<T>& D, SpMatrix<T>* spalpha, 
       const int Ngroups, const int L, const T* pr_eps, const bool adapt=false,
       const int numThreads=-1);
 
 template <typename T>
-void somp(const Matrix<T>* X, const Matrix<T>& D, SpMatrix<T>* spalpha, 
+void somp(const MyMatrix<T>* X, const MyMatrix<T>& D, SpMatrix<T>* spalpha, 
       const int Ngroups, const int L, const T eps, const int numThreads=-1);
 
 
 template <typename T>
-void coreSOMP(const Matrix<T>& X, const Matrix<T>& D, const Matrix<T>& G,
-      Matrix<T>& vM,
+void coreSOMP(const MyMatrix<T>& X, const MyMatrix<T>& D, const MyMatrix<T>& G,
+      MyMatrix<T>& vM,
       Vector<INTM>& rv, const int L, const T eps);
 
 /* *********************
@@ -320,10 +320,10 @@ void coreSOMP(const Matrix<T>& X, const Matrix<T>& D, const Matrix<T>& G,
 ///   * optimized for a big number of signals (precompute the Gramm matrix
 
 template <typename T>
-void omp(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalpha, 
+void omp(const MyMatrix<T>& X, const MyMatrix<T>& D, SpMatrix<T>& spalpha, 
       const int* pL, const T* peps, const T* pLambda, 
       const bool vecL, const bool vecEps,
-      const bool vecLambda, const int numThreads, Matrix<T>* path) {
+      const bool vecLambda, const int numThreads, MyMatrix<T>* path) {
    int L;
    if (!vecL) {
       L=*pL;
@@ -336,8 +336,8 @@ void omp(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalpha,
    const INTM M = X.n();
    const INTM K = D.n();
    L = MIN(X.m(),MIN(L,K));
-   Matrix<T> vM(L,M);
-   Matrix<INTM> rM(L,M);
+   MyMatrix<T> vM(L,M);
+   MyMatrix<INTM> rM(L,M);
 
    ProdMatrix<T> G(D, K < 25000 && M > 10);
 
@@ -347,10 +347,10 @@ void omp(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalpha,
    Vector<T>* normT=new Vector<T>[NUM_THREADS];
    Vector<T>* tmpT=new Vector<T>[NUM_THREADS];
    Vector<T>* RdnT=new Vector<T>[NUM_THREADS];
-   Matrix<T>* UnT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* UndnT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* UndsT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* GsT=new Matrix<T>[NUM_THREADS];
+   MyMatrix<T>* UnT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* UndnT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* UndsT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* GsT=new MyMatrix<T>[NUM_THREADS];
    for (int i = 0; i<NUM_THREADS; ++i) {
       scoresT[i].resize(K);
       normT[i].resize(K);
@@ -404,10 +404,10 @@ void omp(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalpha,
 };
 
 template <typename T>
-void omp_mask(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalpha, const Matrix<bool>& mask,
+void omp_mask(const MyMatrix<T>& X, const MyMatrix<T>& D, SpMatrix<T>& spalpha, const MyMatrix<bool>& mask,
       const int *pL, const T* peps, const T* pLambda, const bool vecL,
       const bool vecEps, const bool vecLambda, const int numThreads,
-      Matrix<T>* path) {
+      MyMatrix<T>* path) {
    int L;
    if (!vecL) {
       L=*pL;
@@ -420,8 +420,8 @@ void omp_mask(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalpha, cons
    const int M = X.n();
    const int K = D.n();
    L = MIN(X.m(),MIN(L,K));
-   Matrix<T> vM(L,M);
-   Matrix<INTM> rM(L,M);
+   MyMatrix<T> vM(L,M);
+   MyMatrix<INTM> rM(L,M);
 
    ProdMatrix<T> G(D, K < 25000 && M > 10);
 
@@ -431,12 +431,12 @@ void omp_mask(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalpha, cons
    Vector<T>* normT=new Vector<T>[NUM_THREADS];
    Vector<T>* tmpT=new Vector<T>[NUM_THREADS];
    Vector<T>* RdnT=new Vector<T>[NUM_THREADS];
-   Matrix<T>* UnT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* UndnT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* UndsT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* GsT=new Matrix<T>[NUM_THREADS];
+   MyMatrix<T>* UnT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* UndnT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* UndsT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* GsT=new MyMatrix<T>[NUM_THREADS];
    ProdMatrix<T>* GT=new ProdMatrix<T>[NUM_THREADS];
-   Matrix<T>* DmaskT=new Matrix<T>[NUM_THREADS];
+   MyMatrix<T>* DmaskT=new MyMatrix<T>[NUM_THREADS];
    Vector<T>* XmaskT=new Vector<T>[NUM_THREADS];
    for (int i = 0; i<NUM_THREADS; ++i) {
       DmaskT[i].resize(D.m(),D.n());
@@ -526,18 +526,18 @@ void coreORMPB(Vector<T>& RtD, const AbstractMatrix<T>& G, Vector<INTM>& ind,
    Vector<T> scores(K);
    Vector<T> norm(K);
    Vector<T> tmp(K);
-   Matrix<T> Un(L,L);
-   Matrix<T> Undn(K,L);
-   Matrix<T> Unds(L,L);
-   Matrix<T> Gs(K,L);
+   MyMatrix<T> Un(L,L);
+   MyMatrix<T> Undn(K,L);
+   MyMatrix<T> Unds(L,L);
+   MyMatrix<T> Gs(K,L);
    ind.set(-1);
    coreORMP(scores,norm,tmp,Un,Undn,Unds,Gs,RtD,G,ind,coeffs,normX,&eps,&L,&lambda);
 };
 
 /// Auxiliary function of omp
 template <typename T>
-void coreORMP(Vector<T>& scores, Vector<T>& norm, Vector<T>& tmp, Matrix<T>& Un,
-      Matrix<T>& Undn, Matrix<T>& Unds, Matrix<T>& Gs, Vector<T>& Rdn,
+void coreORMP(Vector<T>& scores, Vector<T>& norm, Vector<T>& tmp, MyMatrix<T>& Un,
+      MyMatrix<T>& Undn, MyMatrix<T>& Unds, MyMatrix<T>& Gs, Vector<T>& Rdn,
       const AbstractMatrix<T>& G,
       Vector<INTM>& ind, Vector<T>& RUn, 
        T& normX, const T* peps, const int* pL, const T* plambda,
@@ -641,8 +641,8 @@ void coreORMP(Vector<T>& scores, Vector<T>& norm, Vector<T>& tmp, Matrix<T>& Un,
 
 /// Auxiliary function of omp
 /*template <typename T>
-void coreORMPWeighted(Vector<T>& scores, Vector<T>& weights, Vector<T>& norm, Vector<T>& tmp, Matrix<T>& Un,
-      Matrix<T>& Undn, Matrix<T>& Unds, Matrix<T>& Gs, Vector<T>& Rdn,
+void coreORMPWeighted(Vector<T>& scores, Vector<T>& weights, Vector<T>& norm, Vector<T>& tmp, MyMatrix<T>& Un,
+      MyMatrix<T>& Undn, MyMatrix<T>& Unds, MyMatrix<T>& Gs, Vector<T>& Rdn,
       const AbstractMatrix<T>& G,
       Vector<INTM>& ind, Vector<T>& RUn, 
        T& normX, const T peps, const int pL, const T plambda) {
@@ -733,10 +733,10 @@ void coreORMPWeighted(Vector<T>& scores, Vector<T>& weights, Vector<T>& norm, Ve
 ///   * optimized for a big number of signals (precompute the Gramm matrix
 
 template <typename T>
-void lasso(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalpha, 
+void lasso(const MyMatrix<T>& X, const MyMatrix<T>& D, SpMatrix<T>& spalpha, 
       int L, const T lambda, const T lambda2, constraint_type mode, 
       const bool pos, const bool ols, const int numThreads,
-      Matrix<T>* path, const int length_path) {
+      MyMatrix<T>* path, const int length_path) {
    ProdMatrix<T> G(D, X.n() > 10 && D.n() < 50000);
    G.addDiag(MAX(lambda2,1e-10));
    ProdMatrix<T> DtX(D,X,false);
@@ -748,13 +748,13 @@ void lasso(const Data<T>& X, const AbstractMatrix<T>& G,
       const AbstractMatrix<T>& DtX, SpMatrix<T>& spalpha, 
       int L, const T lambda, constraint_type mode, 
       const bool pos, const bool ols, const int numThreads,
-      Matrix<T>* path, const int length_path) {
+      MyMatrix<T>* path, const int length_path) {
 
    spalpha.clear();
    const INTM M = X.n();
    const INTM K = G.n();
-   Matrix<T> vM;
-   Matrix<INTM> rM;
+   MyMatrix<T> vM;
+   MyMatrix<INTM> rM;
    vM.resize(L,M);
    rM.resize(L,M);
 
@@ -772,12 +772,12 @@ void lasso(const Data<T>& X, const AbstractMatrix<T>& G,
    Vector<T>* sigT=new Vector<T>[NUM_THREADS];
    Vector<T>* avT=new Vector<T>[NUM_THREADS];
    Vector<T>* RUnT = new Vector<T>[NUM_THREADS];
-   Matrix<T>* UnT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* RT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* UndsT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* GsT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* GsaT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* workT=new Matrix<T>[NUM_THREADS];
+   MyMatrix<T>* UnT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* RT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* UndsT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* GsT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* GsaT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* workT=new MyMatrix<T>[NUM_THREADS];
    for (int i = 0; i<NUM_THREADS; ++i) {
       RdnT[i].resize(K);
       if (ols) XdnT[i].resize(K);
@@ -844,8 +844,8 @@ void lasso(const Data<T>& X, const AbstractMatrix<T>& G,
 template <typename T>
 void coreLARS(Vector<T>& Rdnv, Vector<T>& Xdnv, Vector<T>& Av,
       Vector<T>& uv, Vector<T>& sigv, Vector<T>& avv, Vector<T>& RUnv,
-      Matrix<T>& Unm, Matrix<T>& Undsm, Matrix<T>& Gsm,
-      Matrix<T>& Gsam, Matrix<T>& workm, Matrix<T>& Rm, 
+      MyMatrix<T>& Unm, MyMatrix<T>& Undsm, MyMatrix<T>& Gsm,
+      MyMatrix<T>& Gsam, MyMatrix<T>& workm, MyMatrix<T>& Rm, 
       const AbstractMatrix<T>& Gm,T& normX, 
       Vector<INTM>& indv,Vector<T>& coeffsv,const T constraint,
       const bool ols,const bool pos, constraint_type mode,
@@ -1098,8 +1098,8 @@ inline void downDateLasso(int& j,int& minBasis,T& normX,const bool ols,
       const bool pos,
       Vector<T>& Rdnv, INTM* ind,
       T* coeffs, Vector<T>& sigv, Vector<T>& avv,
-      Vector<T>& Xdnv, Vector<T>& RUnv,Matrix<T>& Unm, Matrix<T>& Gsm,
-      Matrix<T>& Gsam, Matrix<T>& Undsm, Matrix<T>& Rm) {
+      Vector<T>& Xdnv, Vector<T>& RUnv,MyMatrix<T>& Unm, MyMatrix<T>& Gsm,
+      MyMatrix<T>& Gsam, MyMatrix<T>& Undsm, MyMatrix<T>& Rm) {
    const int L = Gsm.n();
    const int K = Gsm.m();
    T* const Rdn = Rdnv.rawX();
@@ -1206,15 +1206,15 @@ inline void downDateLasso(int& j,int& minBasis,T& normX,const bool ols,
 
 /// second implementation using matrix inversion lemma
 template <typename T>
-void lassoReweighted(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalpha,
+void lassoReweighted(const MyMatrix<T>& X, const MyMatrix<T>& D, SpMatrix<T>& spalpha,
       int L, const T constraint, constraint_type mode, const bool pos,
       const T sigma,
       const int numThreads) {
    spalpha.clear();
    const int M = X.n();
    const int K = D.n();
-   Matrix<T> vM;
-   Matrix<int> rM;
+   MyMatrix<T> vM;
+   MyMatrix<int> rM;
    vM.resize(L,M);
    rM.resize(L,M);
    const int iterR = 30;
@@ -1225,7 +1225,7 @@ void lassoReweighted(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalph
 
    //ProdMatrix<T> G(D, K < 25000 && M > 10);
    ProdMatrix<T> G(D, K < 50000);
-   //Matrix<T> G;
+   //MyMatrix<T> G;
    //D.XtX(G);
    G.addDiag(1e-10);
 
@@ -1234,11 +1234,11 @@ void lassoReweighted(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalph
    Vector<T>* uT=new Vector<T>[NUM_THREADS];
    Vector<T>* weightsT=new Vector<T>[NUM_THREADS];
    Vector<int>* inddT=new Vector<int>[NUM_THREADS];
-   Matrix<T>* GsT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* GaT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* invGsT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* workT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* GT=new Matrix<T>[NUM_THREADS];
+   MyMatrix<T>* GsT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* GaT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* invGsT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* workT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* GT=new MyMatrix<T>[NUM_THREADS];
    for (int i = 0; i<NUM_THREADS; ++i) {
       DtRT[i].resize(K);
       DtRRT[i].resize(K);
@@ -1276,7 +1276,7 @@ void lassoReweighted(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalph
       DtRR.copy(DtR);
       coreLARS2(DtRR,G,GsT[numT],GaT[numT],invGsT[numT],uT[numT],coeffs,
             ind,workT[numT],normX,mode,constraint,pos);
-      //Matrix<T>& GG = GT[numT];
+      //MyMatrix<T>& GG = GT[numT];
       Vector<T>& weights = weightsT[numT];
       //Vector<int>& indd = inddT[numT];
       for (int j = 0; j<iterR; ++j) {
@@ -1313,7 +1313,7 @@ void lassoReweighted(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalph
 }
 
 template <typename T>
-void lassoWeight(const Matrix<T>& X, const Matrix<T>& D, const Matrix<T>& weights,
+void lassoWeight(const MyMatrix<T>& X, const MyMatrix<T>& D, const MyMatrix<T>& weights,
       SpMatrix<T>& spalpha, 
       int L, const T constraint, constraint_type mode, const bool pos,
       const int numThreads) {
@@ -1321,8 +1321,8 @@ void lassoWeight(const Matrix<T>& X, const Matrix<T>& D, const Matrix<T>& weight
    spalpha.clear();
    const int M = X.n();
    const int K = D.n();
-   Matrix<T> vM;
-   Matrix<INTM> rM;
+   MyMatrix<T> vM;
+   MyMatrix<INTM> rM;
    vM.resize(L,M);
    rM.resize(L,M);
    
@@ -1332,16 +1332,16 @@ void lassoWeight(const Matrix<T>& X, const Matrix<T>& D, const Matrix<T>& weight
 
    //ProdMatrix<T> G(D, K < 25000 && M > 10);
    ProdMatrix<T> G(D, K < 50000);
-   //Matrix<T> G;
+   //MyMatrix<T> G;
    //D.XtX(G);
    G.addDiag(1e-10);
 
    Vector<T>* DtRT=new Vector<T>[NUM_THREADS];
    Vector<T>* uT=new Vector<T>[NUM_THREADS];
-   Matrix<T>* GsT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* GaT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* invGsT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* workT=new Matrix<T>[NUM_THREADS];
+   MyMatrix<T>* GsT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* GaT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* invGsT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* workT=new MyMatrix<T>[NUM_THREADS];
    for (int i = 0; i<NUM_THREADS; ++i) {
       DtRT[i].resize(K);
       uT[i].resize(K);
@@ -1391,7 +1391,7 @@ void lassoWeight(const Matrix<T>& X, const Matrix<T>& D, const Matrix<T>& weight
 };
 
 template <typename T>
-void lassoWeightPreComputed(const Matrix<T>& X, const Matrix<T>& G, const Matrix<T>& DtR, const Matrix<T>& weights,
+void lassoWeightPreComputed(const MyMatrix<T>& X, const MyMatrix<T>& G, const MyMatrix<T>& DtR, const MyMatrix<T>& weights,
       SpMatrix<T>& spalpha, 
       int L, const T constraint, constraint_type mode, const bool pos,
       const int numThreads) {
@@ -1399,8 +1399,8 @@ void lassoWeightPreComputed(const Matrix<T>& X, const Matrix<T>& G, const Matrix
    spalpha.clear();
    const int M = X.n();
    const int K = G.n();
-   Matrix<T> vM;
-   Matrix<int> rM;
+   MyMatrix<T> vM;
+   MyMatrix<int> rM;
    vM.resize(L,M);
    rM.resize(L,M);
    
@@ -1410,10 +1410,10 @@ void lassoWeightPreComputed(const Matrix<T>& X, const Matrix<T>& G, const Matrix
 
    Vector<T>* DtRT=new Vector<T>[NUM_THREADS];
    Vector<T>* uT=new Vector<T>[NUM_THREADS];
-   Matrix<T>* GsT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* GaT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* invGsT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* workT=new Matrix<T>[NUM_THREADS];
+   MyMatrix<T>* GsT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* GaT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* invGsT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* workT=new MyMatrix<T>[NUM_THREADS];
    for (int i = 0; i<NUM_THREADS; ++i) {
       DtRT[i].resize(K);
       uT[i].resize(K);
@@ -1464,14 +1464,14 @@ void lassoWeightPreComputed(const Matrix<T>& X, const Matrix<T>& G, const Matrix
 
 /// second implementation using matrix inversion lemma
 template <typename T>
-void lasso_mask(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalpha, const Matrix<bool>& mask,
+void lasso_mask(const MyMatrix<T>& X, const MyMatrix<T>& D, SpMatrix<T>& spalpha, const MyMatrix<bool>& mask,
       int L, const T constraint,const T lambda2, constraint_type mode, const bool pos,
       const int numThreads) {
    spalpha.clear();
    const int M = X.n();
    const int K = D.n();
-   Matrix<T> vM;
-   Matrix<INTM> rM;
+   MyMatrix<T> vM;
+   MyMatrix<INTM> rM;
    vM.resize(L,M);
    rM.resize(L,M);
 
@@ -1485,12 +1485,12 @@ void lasso_mask(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalpha, co
    Vector<T>* DtRT=new Vector<T>[NUM_THREADS];
    Vector<T>* uT=new Vector<T>[NUM_THREADS];
    Vector<T>* XmaskT=new Vector<T>[NUM_THREADS];
-   Matrix<T>* GsT=new Matrix<T>[NUM_THREADS];
+   MyMatrix<T>* GsT=new MyMatrix<T>[NUM_THREADS];
    ProdMatrix<T>* GT=new ProdMatrix<T>[NUM_THREADS];
-   Matrix<T>* DmaskT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* GaT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* invGsT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* workT=new Matrix<T>[NUM_THREADS];
+   MyMatrix<T>* DmaskT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* GaT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* invGsT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* workT=new MyMatrix<T>[NUM_THREADS];
    for (int i = 0; i<NUM_THREADS; ++i) {
       DmaskT[i].resize(D.m(),D.n());
       DtRT[i].resize(K);
@@ -1561,9 +1561,9 @@ void lasso_mask(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalpha, co
 };
 
 template <typename T>
-void lasso2(const Matrix<T>& X, const Matrix<T>& D, SpMatrix<T>& spalpha, 
+void lasso2(const MyMatrix<T>& X, const MyMatrix<T>& D, SpMatrix<T>& spalpha, 
       int L, const T constraint, const T lambda2, constraint_type mode, const bool pos,
-      const int numThreads, Matrix<T>* path, int length_path) {
+      const int numThreads, MyMatrix<T>* path, int length_path) {
    ProdMatrix<T> G(D,X.n() > 10 && D.n() < 50000);
    ProdMatrix<T> DtX(D,X,false);
    G.addDiag(MAX(lambda2,1e-10));
@@ -1575,12 +1575,12 @@ template <typename T>
 void lasso2(const Data<T>& X, const AbstractMatrix<T>& G, const AbstractMatrix<T>& DtX,
       SpMatrix<T>& spalpha, 
       int L, const T constraint, constraint_type mode, const bool pos,
-      const int numThreads, Matrix<T>* path, int length_path) {
+      const int numThreads, MyMatrix<T>* path, int length_path) {
    spalpha.clear();
    const INTM M = X.n();
    const INTM K = G.n();
-   Matrix<T> vM;
-   Matrix<INTM> rM;
+   MyMatrix<T> vM;
+   MyMatrix<INTM> rM;
    vM.resize(L,M);
    rM.resize(L,M);
 
@@ -1591,10 +1591,10 @@ void lasso2(const Data<T>& X, const AbstractMatrix<T>& G, const AbstractMatrix<T
 
    Vector<T>* DtRT=new Vector<T>[NUM_THREADS];
    Vector<T>* uT=new Vector<T>[NUM_THREADS];
-   Matrix<T>* GsT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* GaT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* invGsT=new Matrix<T>[NUM_THREADS];
-   Matrix<T>* workT=new Matrix<T>[NUM_THREADS];
+   MyMatrix<T>* GsT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* GaT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* invGsT=new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* workT=new MyMatrix<T>[NUM_THREADS];
    for (int i = 0; i<NUM_THREADS; ++i) {
       DtRT[i].resize(K);
       uT[i].resize(K);
@@ -1658,13 +1658,13 @@ void coreLARS2W(Vector<T>& DtR, const AbstractMatrix<T>& G,
    r.resize(L);
    Vector<T> u;
    u.resize(p);
-   Matrix<T> Gs;
+   MyMatrix<T> Gs;
    Gs.resize(L,L);
-   Matrix<T> invGs;
+   MyMatrix<T> invGs;
    invGs.resize(L,L);
-   Matrix<T> Ga;
+   MyMatrix<T> Ga;
    Ga.resize(p,L);
-   Matrix<T> work;
+   MyMatrix<T> work;
    work.resize(p,3);
    coreLARS2W(DtR,G,Gs,Ga,invGs,u,v,weights,r,work,normX,mode,constraint,pos);
    coeffs.setZeros();
@@ -1687,13 +1687,13 @@ void coreLARS2(Vector<T>& DtR, const AbstractMatrix<T>& G,
    r.resize(L);
    Vector<T> u;
    u.resize(p);
-   Matrix<T> Gs;
+   MyMatrix<T> Gs;
    Gs.resize(L,L);
-   Matrix<T> invGs;
+   MyMatrix<T> invGs;
    invGs.resize(L,L);
-   Matrix<T> Ga;
+   MyMatrix<T> Ga;
    Ga.resize(p,L);
-   Matrix<T> work;
+   MyMatrix<T> work;
    work.resize(p,3);
    coreLARS2(DtR,G,Gs,Ga,invGs,u,v,r,work,normX,mode,constraint,pos);
    coeffs.setZeros();
@@ -1706,13 +1706,13 @@ void coreLARS2(Vector<T>& DtR, const AbstractMatrix<T>& G,
 /// Auxiliary function for lasso 
 template <typename T>
 void coreLARS2(Vector<T>& DtR, const AbstractMatrix<T>& G,
-      Matrix<T>& Gs,
-      Matrix<T>& Ga,
-      Matrix<T>& invGs,
+      MyMatrix<T>& Gs,
+      MyMatrix<T>& Ga,
+      MyMatrix<T>& invGs,
       Vector<T>& u,
       Vector<T>& coeffs,
       Vector<INTM>& ind,
-      Matrix<T>& work,
+      MyMatrix<T>& work,
       T& normX,
       const constraint_type mode,
       const T constraint,
@@ -1917,14 +1917,14 @@ void coreLARS2(Vector<T>& DtR, const AbstractMatrix<T>& G,
 /// Auxiliary function for lasso 
 template <typename T>
 void coreLARS2W(Vector<T>& DtR, const AbstractMatrix<T>& G,
-      Matrix<T>& Gs,
-      Matrix<T>& Ga,
-      Matrix<T>& invGs,
+      MyMatrix<T>& Gs,
+      MyMatrix<T>& Ga,
+      MyMatrix<T>& invGs,
       Vector<T>& u,
       Vector<T>& coeffs,
       const Vector<T>& weights,
       Vector<INTM>& ind,
-      Matrix<T>& work,
+      MyMatrix<T>& work,
       T& normX,
       const constraint_type mode,
       const T constraint,
@@ -2118,12 +2118,12 @@ void coreLARS2W(Vector<T>& DtR, const AbstractMatrix<T>& G,
 /// \forall i, \min_{\alpha_i} constraint*||\alpha_i||_1 + ...
 ///                        ... ||\X_i-D\alpha_i||_2^2 <= lambda 
 template <typename T>
-void ist(const Matrix<T>& X, const Matrix<T>& D, 
+void ist(const MyMatrix<T>& X, const MyMatrix<T>& D, 
       SpMatrix<T>& spalpha, T lambda, constraint_type mode,
       const int itermax, 
       const T tol,
       const int numThreads) {
-   Matrix<T> alpha;
+   MyMatrix<T> alpha;
    spalpha.toFull(alpha);
    spalpha.clear();
    ist(X,D,alpha,lambda,mode,itermax,tol,numThreads);
@@ -2131,8 +2131,8 @@ void ist(const Matrix<T>& X, const Matrix<T>& D,
 }
 
 template <typename T>
-void ist(const Matrix<T>& X, const Matrix<T>& D, 
-      Matrix<T>& alpha, T lambda, constraint_type mode,
+void ist(const MyMatrix<T>& X, const MyMatrix<T>& D, 
+      MyMatrix<T>& alpha, T lambda, constraint_type mode,
       const int itermax, 
       const T tol, const int numThreads) {
 
@@ -2149,10 +2149,10 @@ void ist(const Matrix<T>& X, const Matrix<T>& D,
       return;
    }
 
-   /// compute the Gram Matrix G=D'D
+   /// compute the Gram MyMatrix G=D'D
    //CachedProdMatrix<T> G(D, K < 20000 && M*K/10 > K);
    //ProdMatrix<T> G(D, K < 20000 && M*K/10 > K);
-   Matrix<T> G;
+   MyMatrix<T> G;
    D.XtX(G);
    // for (int i = 0; i<K; ++i) G[i*K+i] += 1e-6;
    G.addDiag(1e-12);
@@ -2311,7 +2311,7 @@ inline void coreIST(const AbstractMatrix<T>& G, Vector<T>& DtRv, Vector<T>& coef
 }
 
 template <typename T>
-inline void coreISTW(const Matrix<T>& G, Vector<T>& DtRv, Vector<T>& coeffsv,const Vector<T>& weightsv,
+inline void coreISTW(const MyMatrix<T>& G, Vector<T>& DtRv, Vector<T>& coeffsv,const Vector<T>& weightsv,
       const T lambda, const int itermax, 
       const T tol) {
 
@@ -2505,8 +2505,8 @@ void coreISTconstrained(const AbstractMatrix<T>& G, Vector<T>& DtRv, Vector<T>&
 
 /// ist for group Lasso
 template <typename T>
-void ist_groupLasso(const Matrix<T>* XT, const Matrix<T>& D,
-      Matrix<T>* alphaT, const int Ngroups, 
+void ist_groupLasso(const MyMatrix<T>* XT, const MyMatrix<T>& D,
+      MyMatrix<T>* alphaT, const int Ngroups, 
       const T lambda, const constraint_type mode,
       const int itermax,
       const T tol, const int numThreads) {
@@ -2524,14 +2524,14 @@ void ist_groupLasso(const Matrix<T>* XT, const Matrix<T>& D,
    }
 
 
-   /// compute the Gram Matrix G=D'D
-   Matrix<T> G;
+   /// compute the Gram MyMatrix G=D'D
+   MyMatrix<T> G;
    D.XtX(G);
 
    int NUM_THREADS=init_omp(numThreads);
 
-   Matrix<T>* RtDT = new Matrix<T>[NUM_THREADS];
-   Matrix<T>* alphatT = new Matrix<T>[NUM_THREADS];
+   MyMatrix<T>* RtDT = new MyMatrix<T>[NUM_THREADS];
+   MyMatrix<T>* alphatT = new MyMatrix<T>[NUM_THREADS];
 
    int i;
 #pragma omp parallel for private(i) 
@@ -2541,11 +2541,11 @@ void ist_groupLasso(const Matrix<T>* XT, const Matrix<T>& D,
 #else
       int numT=0;
 #endif
-      const Matrix<T>& X = XT[i];
+      const MyMatrix<T>& X = XT[i];
       int M = X.n();
-      Matrix<T>& alphat = alphatT[numT];
+      MyMatrix<T>& alphat = alphatT[numT];
       alphaT[i].transpose(alphat);
-      Matrix<T>& RtD = RtDT[numT];
+      MyMatrix<T>& RtD = RtDT[numT];
       X.mult(D,RtD,true,false);
 
 
@@ -2599,8 +2599,8 @@ void ist_groupLasso(const Matrix<T>* XT, const Matrix<T>& D,
 
 
 template <typename T>
-void coreGroupIST(const Matrix<T>& G, Matrix<T>& RtDm,
-      Matrix<T>& coeffsm,
+void coreGroupIST(const MyMatrix<T>& G, MyMatrix<T>& RtDm,
+      MyMatrix<T>& coeffsm,
       const T thrs,
       const int itermax,
       const T tol) {
@@ -2679,8 +2679,8 @@ void coreGroupIST(const Matrix<T>& G, Matrix<T>& RtDm,
 
 /// Auxiliary function for ist_groupLasso
 template <typename T>
-void coreGroupISTConstrained(const Matrix<T>& G, Matrix<T>& RtDm,
-      Matrix<T>& coeffsm, const T normR,
+void coreGroupISTConstrained(const MyMatrix<T>& G, MyMatrix<T>& RtDm,
+      MyMatrix<T>& coeffsm, const T normR,
       const T eps,
       const int itermax,
       const T tol) {
@@ -2791,7 +2791,7 @@ void coreGroupISTConstrained(const Matrix<T>& G, Matrix<T>& RtDm,
 /// auxiliary function for ist_groupLasso
 template <typename T>
 T computeError(const T normX2,const Vector<T>& norms,
-      const Matrix<T>& G,const Matrix<T>& RtD,const Matrix<T>& alphat) {
+      const MyMatrix<T>& G,const MyMatrix<T>& RtD,const MyMatrix<T>& alphat) {
    T err2 = normX2;
    Vector<T> col,col2;
    for (int j = 0; j<G.n(); ++j) {
@@ -2816,7 +2816,7 @@ T computeError(const T normX2,const Vector<T>& norms,
 /// auxiliary function for 
 template <typename T>
 T computeError(const T normX2,
-      const Matrix<T>& G,const Vector<T>& DtR,const Vector<T>& coeffs,
+      const MyMatrix<T>& G,const Vector<T>& DtR,const Vector<T>& coeffs,
       SpVector<T>& spAlpha) {
    coeffs.toSparse(spAlpha);
    return normX2 -G.quad(spAlpha)-2*DtR.dot(spAlpha);
@@ -2827,13 +2827,13 @@ T computeError(const T normX2,
  * *****************/
 
 template <typename T>
-void somp(const Matrix<T>* X, const Matrix<T>& D, SpMatrix<T>* spalpha, 
+void somp(const MyMatrix<T>* X, const MyMatrix<T>& D, SpMatrix<T>* spalpha, 
       const int Ngroups, const int L, const T eps,const int numThreads) {
    somp(X,D,spalpha,Ngroups,L,&eps,false,numThreads);
 }
 
 template <typename T>
-void somp(const Matrix<T>* XT, const Matrix<T>& D, SpMatrix<T>* spalphaT, 
+void somp(const MyMatrix<T>* XT, const MyMatrix<T>& D, SpMatrix<T>* spalphaT, 
       const int Ngroups, const int LL, const T* eps, const bool adapt,
       const int numThreads) {
    if (LL <= 0) return;
@@ -2845,8 +2845,8 @@ void somp(const Matrix<T>* XT, const Matrix<T>& D, SpMatrix<T>* spalphaT,
       return;
    }
 
-   /// compute the Gram Matrix G=D'D
-   Matrix<T> G;
+   /// compute the Gram MyMatrix G=D'D
+   MyMatrix<T> G;
    D.XtX(G);
 
    init_omp(numThreads);
@@ -2854,12 +2854,12 @@ void somp(const Matrix<T>* XT, const Matrix<T>& D, SpMatrix<T>* spalphaT,
    int i;
 #pragma omp parallel for private(i) 
    for (i = 0; i< Ngroups; ++i) {
-      const Matrix<T>& X = XT[i];
+      const MyMatrix<T>& X = XT[i];
       const INTM M = X.n();
       SpMatrix<T>& spalpha = spalphaT[i];
       spalpha.clear();
       Vector<INTM> rv;
-      Matrix<T> vM;
+      MyMatrix<T> vM;
       T thrs = adapt ? eps[i] : M*(*eps);
       coreSOMP(X,D,G,vM,rv,L,thrs);
       spalpha.convert2(vM,rv,K);   
@@ -2867,8 +2867,8 @@ void somp(const Matrix<T>* XT, const Matrix<T>& D, SpMatrix<T>* spalphaT,
 }
 
 template <typename T>
-void coreSOMP(const Matrix<T>& X, const Matrix<T>& D, const Matrix<T>& G,
-      Matrix<T>& v,
+void coreSOMP(const MyMatrix<T>& X, const MyMatrix<T>& D, const MyMatrix<T>& G,
+      MyMatrix<T>& v,
       Vector<INTM>& r, const int L, const T eps) {
    const int K = G.n();
    const int n = D.m();
@@ -2883,11 +2883,11 @@ void coreSOMP(const Matrix<T>& X, const Matrix<T>& D, const Matrix<T>& G,
       Vector<T> scores(K);
       Vector<T> norm(K);
       Vector<T> tmp(K);
-      Matrix<T> Un(L,L);
+      MyMatrix<T> Un(L,L);
       Un.setZeros();
-      Matrix<T> Undn(K,L);
-      Matrix<T> Unds(L,L);
-      Matrix<T> Gs(K,L);
+      MyMatrix<T> Undn(K,L);
+      MyMatrix<T> Unds(L,L);
+      MyMatrix<T> Gs(K,L);
       Vector<T> Rdn(K);
       Vector<T> Xt(X.rawX(),n);
       D.multTrans(Xt,Rdn);
@@ -2907,11 +2907,11 @@ void coreSOMP(const Matrix<T>& X, const Matrix<T>& D, const Matrix<T>& G,
       return;
    }
 
-   Matrix<T> XXtD;
-   Matrix<T> XtD;
+   MyMatrix<T> XXtD;
+   MyMatrix<T> XtD;
    T E;
    if (big_mode) {
-      Matrix<T> XXt;
+      MyMatrix<T> XXt;
       X.XXt(XXt);
       E = XXt.trace();
       if (E < eps) return;
@@ -2922,17 +2922,17 @@ void coreSOMP(const Matrix<T>& X, const Matrix<T>& D, const Matrix<T>& G,
       X.mult(D,XtD,true);
    }
 
-   Matrix<T> A(K,L);
+   MyMatrix<T> A(K,L);
    A.setZeros();
-   Matrix<T> B(L,K);
+   MyMatrix<T> B(L,K);
    B.setZeros();
-   Matrix<T> S(L,L);
+   MyMatrix<T> S(L,L);
    S.setZeros();
-   Matrix<T> Fs(K,L);
+   MyMatrix<T> Fs(K,L);
    Fs.setZeros();
-   Matrix<T> Gs(K,L);
+   MyMatrix<T> Gs(K,L);
    Gs.setZeros();
-   Matrix<T> As(L,L);
+   MyMatrix<T> As(L,L);
    As.setZeros();
 
    Vector<T> tmp(K);
@@ -3044,15 +3044,15 @@ void coreSOMP(const Matrix<T>& X, const Matrix<T>& D, const Matrix<T>& G,
 
    if (j == 0) return;
 
-   Matrix<T> SSt;
+   MyMatrix<T> SSt;
    S.upperTriXXt(SSt,j);
-   Matrix<T> Dg(n,j);
+   MyMatrix<T> Dg(n,j);
    for (int i = 0; i<j;++i) {
       Vector<T> Dgi;
       Dg.refCol(i,Dgi);
       D.copyCol(r[i],Dgi);
    }
-   Matrix<T> SStDt;
+   MyMatrix<T> SStDt;
    SSt.mult(Dg,SStDt,false,true);
    SStDt.mult(X,v);
 };

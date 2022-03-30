@@ -195,7 +195,7 @@ template <typename T> inline void getVector(const mxArray* array, Vector<T>& y) 
    y.setData(prY,n);
 };
 
-template <typename T> inline void getMatrix(const mxArray* array, Matrix<T>& X) {
+template <typename T> inline void getMatrix(const mxArray* array, MyMatrix<T>& X) {
    if (!mexCheckType<T>(array)) 
       mexErrMsgTxt("type of argument is not consistent");
    if (mxIsSparse(array))
